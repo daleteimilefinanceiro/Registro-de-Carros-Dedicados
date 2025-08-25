@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import os
+import io
 
 st.title("📋Registro de Carros Dedicados")
 
@@ -78,6 +79,9 @@ with tab1:
     for veiculo in veiculos_selecionados:
         quantidades[veiculo] = st.number_input(f"Quantidade de {veiculo}", min_value=0, step=1)
 
+    # Novo campo de Observações
+    observacoes = st.text_area("Observações (opcional)")
+
     # Botão Registrar
     if st.button("Registrar"):
         registros = []
@@ -89,7 +93,8 @@ with tab1:
                 "Mês": mes,
                 "Operação": operacao,
                 "Tipo de Veículo": veiculo,
-                "Quantidade": quantidade
+                "Quantidade": quantidade,
+                "Observações": observacoes
             })
 
         df_novo = pd.DataFrame(registros)
@@ -105,8 +110,6 @@ with tab1:
 
         st.success("✅ Registro(s) salvo(s) com sucesso!")
         st.dataframe(df_novo)
-
-import io
 
 # ---------------- Aba Relatório ----------------
 with tab2:
@@ -147,6 +150,7 @@ with tab2:
         )
     else:
         st.warning("⚠️ Nenhum registro encontrado. Comece adicionando registros na aba Registro.")
+
 
 
 
