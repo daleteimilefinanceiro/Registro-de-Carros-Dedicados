@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import os
 import io
+from datetime import datetime
 
 st.title("📋Registro de Carros Dedicados")
 
@@ -108,40 +109,51 @@ with tab1:
     ])
     operacao = st.selectbox("Operação", operacoes)
 
-    veiculos_selecionados = st.multiselect("Tipo de Veículo", tipos_veiculos)
-
+    # Veículos fixos com campo de quantidade ao lado
+    veiculos_fixos = tipos_veiculos
     quantidades = {}
-    for veiculo in veiculos_selecionados:
-        quantidades[veiculo] = st.number_input(f"Quantidade de {veiculo}", min_value=0, step=1)
+
+    st.subheader("Quantidade de Veículos")
+    for veiculo in veiculos_fixos:
+        col1, col2 = st.columns([3, 1])
+        col1.write(veiculo)
+        quantidades[veiculo] = col2.number_input(
+            f"Qtd {veiculo}", min_value=0, step=1, key=f"{veiculo}_qtd"
+        )
 
     observacoes = st.text_area("Observações (opcional)")
 
     if st.button("Registrar"):
         registros = []
         for veiculo, quantidade in quantidades.items():
-            registros.append({
-                "Razão Social": razao_social,
-                "Ano": ano,
-                "Quinzena": quinzena,
-                "Mês": mes,
-                "Operação": operacao,
-                "Tipo de Veículo": veiculo,
-                "Quantidade": quantidade,
-                "Observações": observacoes
-            })
+            if quantidade > 0:  # só registra se quantidade > 0
+                registros.append({
+                    "Razão Social": razao_social,
+                    "Ano": ano,
+                    "Quinzena": quinzena,
+                    "Mês": mes,
+                    "Operação": operacao,
+                    "Tipo de Veículo": veiculo,
+                    "Quantidade": quantidade,
+                    "Observações": observacoes,
+                    "Data de Registro": datetime.now().strftime("%d/%m/%Y %H:%M:%S")  # data automática
+                })
 
-        df_novo = pd.DataFrame(registros)
+        if registros:
+            df_novo = pd.DataFrame(registros)
 
-        if os.path.exists(arquivo_excel):
-            df_existente = pd.read_excel(arquivo_excel)
-            df_final = pd.concat([df_existente, df_novo], ignore_index=True)
+            if os.path.exists(arquivo_excel):
+                df_existente = pd.read_excel(arquivo_excel)
+                df_final = pd.concat([df_existente, df_novo], ignore_index=True)
+            else:
+                df_final = df_novo
+
+            df_final.to_excel(arquivo_excel, index=False)
+
+            st.success("✅ Registro(s) salvo(s) com sucesso!")
+            st.dataframe(df_novo)
         else:
-            df_final = df_novo
-
-        df_final.to_excel(arquivo_excel, index=False)
-
-        st.success("✅ Registro(s) salvo(s) com sucesso!")
-        st.dataframe(df_novo)
+            st.warning("⚠️ Nenhuma quantidade informada para registrar.")
 
 # ---------------- Aba Relatório ----------------
 with tab2:
@@ -185,6 +197,7 @@ with tab2:
         )
     else:
         st.warning("⚠️ Nenhum registro encontrado. Comece adicionando registros na aba Registro.")
+
 
 
 
