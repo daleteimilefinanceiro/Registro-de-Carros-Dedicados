@@ -5,7 +5,43 @@ import io
 
 st.title("📋Registro de Carros Dedicados")
 
-# Lista de Razões Sociais
+# ---------------- CONFIGURAÇÃO DE LOGIN ----------------
+usuarios = {
+    "financeadm": {"senha": "Dcschv2020@", "razao": "TODOS"},
+    "SRM2500123": {"senha": "ba7V1sK1fzYAgIGy", "razao": "2AR TRANSPORTES LTDA"},
+    "SRM2501082": {"senha": "TbrTNBmm3E2WDi7y", "razao": "NEW EXPRESS BN LTDA."},
+    "SRM2500909": {"senha": "sfgzEwAggNPsu43J", "razao": "GETLOG TRANSPORTES LTDA"},
+    # Adicione os outros aqui...
+}
+
+# Estado de login
+if "usuario" not in st.session_state:
+    st.session_state["usuario"] = None
+
+if st.session_state["usuario"] is None:
+    st.subheader("🔐 Login")
+    usuario = st.text_input("Usuário")
+    senha = st.text_input("Senha", type="password")
+
+    if st.button("Entrar"):
+        if usuario in usuarios and usuarios[usuario]["senha"] == senha:
+            st.session_state["usuario"] = usuario
+            st.success("✅ Login realizado com sucesso!")
+            st.rerun()
+        else:
+            st.error("❌ Usuário ou senha inválidos")
+    st.stop()
+
+usuario_logado = st.session_state["usuario"]
+razao_permitida = usuarios[usuario_logado]["razao"]
+
+st.sidebar.success(f"👤 Usuário logado: {usuario_logado} ({razao_permitida})")
+if st.sidebar.button("Sair"):
+    st.session_state["usuario"] = None
+    st.rerun()
+
+# ---------------- CONFIGURAÇÃO DA APLICAÇÃO ----------------
+
 razoes_sociais = [
     "2AR TRANSPORTES LTDA",
     "ACC SILVA MINIMERCADO",
@@ -47,23 +83,23 @@ razoes_sociais = [
     "WF FINGER TRANSPORTE E LOGISTICA LTDA"
 ]
 
-# Lista de Tipos de Veículo
 tipos_veiculos = ["Carro HR", "Fiorino", "Moto", "Caminhão", "Ajudante", "VUC"]
-
-# Lista de Operações
 operacoes = ["TIKTOK", "SHEIN - D2D"]
-
-# Caminho do arquivo Excel
 arquivo_excel = "registros.xlsx"
 
-# Criando abas
 tab1, tab2 = st.tabs(["Registro", "Relatório"])
 
 # ---------------- Aba Registro ----------------
 with tab1:
     st.header("📌 Registro de Veículos")
 
-    razao_social = st.selectbox("Razão Social", razoes_sociais)
+    # Se for transportadora, trava a razão social
+    if razao_permitida != "TODOS":
+        razao_social = razao_permitida
+        st.info(f"🔒 Você só pode registrar para: **{razao_social}**")
+    else:
+        razao_social = st.selectbox("Razão Social", razoes_sociais)
+
     ano = st.number_input("Ano", min_value=2000, max_value=2100, step=1)
     quinzena = st.selectbox("Quinzena", ["1ª Quinzena", "2ª Quinzena"])
     mes = st.selectbox("Mês", [
@@ -74,15 +110,12 @@ with tab1:
 
     veiculos_selecionados = st.multiselect("Tipo de Veículo", tipos_veiculos)
 
-    # Quantidades dinâmicas
     quantidades = {}
     for veiculo in veiculos_selecionados:
         quantidades[veiculo] = st.number_input(f"Quantidade de {veiculo}", min_value=0, step=1)
 
-    # Novo campo de Observações
     observacoes = st.text_area("Observações (opcional)")
 
-    # Botão Registrar
     if st.button("Registrar"):
         registros = []
         for veiculo, quantidade in quantidades.items():
@@ -99,7 +132,6 @@ with tab1:
 
         df_novo = pd.DataFrame(registros)
 
-        # Salvar no Excel
         if os.path.exists(arquivo_excel):
             df_existente = pd.read_excel(arquivo_excel)
             df_final = pd.concat([df_existente, df_novo], ignore_index=True)
@@ -118,28 +150,31 @@ with tab2:
     if os.path.exists(arquivo_excel):
         df = pd.read_excel(arquivo_excel)
 
-        # Filtros
-        filtro_razao = st.selectbox("Filtrar por Razão Social", ["Todas"] + razoes_sociais)
+        # Se não for admin, filtra automaticamente
+        if razao_permitida != "TODOS":
+            df = df[df["Razão Social"] == razao_permitida]
+
+        # Admin pode filtrar manualmente
+        if razao_permitida == "TODOS":
+            filtro_razao = st.selectbox("Filtrar por Razão Social", ["Todas"] + razoes_sociais)
+            if filtro_razao != "Todas":
+                df = df[df["Razão Social"] == filtro_razao]
+
         filtro_quinzena = st.selectbox("Filtrar por Quinzena", ["Todas", "1ª Quinzena", "2ª Quinzena"])
         filtro_mes = st.selectbox("Filtrar por Mês", ["Todos",
                                                       "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
                                                       "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"])
 
-        df_filtrado = df.copy()
-
-        if filtro_razao != "Todas":
-            df_filtrado = df_filtrado[df_filtrado["Razão Social"] == filtro_razao]
         if filtro_quinzena != "Todas":
-            df_filtrado = df_filtrado[df_filtrado["Quinzena"] == filtro_quinzena]
+            df = df[df["Quinzena"] == filtro_quinzena]
         if filtro_mes != "Todos":
-            df_filtrado = df_filtrado[df_filtrado["Mês"] == filtro_mes]
+            df = df[df["Mês"] == filtro_mes]
 
-        st.dataframe(df_filtrado)
+        st.dataframe(df)
 
-        # Botão de download
         output = io.BytesIO()
         with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-            df_filtrado.to_excel(writer, index=False, sheet_name="Relatório")
+            df.to_excel(writer, index=False, sheet_name="Relatório")
         processed_data = output.getvalue()
 
         st.download_button(
@@ -150,6 +185,7 @@ with tab2:
         )
     else:
         st.warning("⚠️ Nenhum registro encontrado. Comece adicionando registros na aba Registro.")
+
 
 
 
