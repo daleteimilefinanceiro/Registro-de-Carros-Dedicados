@@ -84,8 +84,8 @@ razoes_sociais = [
     "WF FINGER TRANSPORTE E LOGISTICA LTDA"
 ]
 
-tipos_veiculos = ["Carro HR", "Fiorino", "Moto", "Caminhão", "Ajudante", "VUC"]
-operacoes = ["TIKTOK", "SHEIN - D2D"]
+tipos_veiculos = ["AJUDANTE", "MOTO", "CARRO UTILITÁRIO", "FIORINO", "VAN", "VUC"]
+operacoes = ["SHEIN", "SHEIN - D2D","TIKTOK", "NUVEMSHOP", "BENNET JEANS"]
 arquivo_excel = "registros.xlsx"
 
 tab1, tab2 = st.tabs(["Registro", "Relatório"])
@@ -197,6 +197,7 @@ with tab2:
         )
     else:
         st.warning("⚠️ Nenhum registro encontrado. Comece adicionando registros na aba Registro.")
+
 
 
 
