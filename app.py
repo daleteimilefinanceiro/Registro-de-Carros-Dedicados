@@ -63,16 +63,14 @@ operacoes = ["SHEIN", "SHEIN - D2D","TIKTOK", "NUVEMSHOP", "BENNET JEANS"]
 arquivo_fluxo = "fluxo.xlsx"
 
 # ---------------- ABAS ----------------
-if usuario_logado == "financeadm":
-    abas = ["Registro", "Relatório", "Fluxo de Aprovação", "Aprovação"]
-elif usuario_logado == "janaina.ferreira":
-    abas = ["Aprovação"]
+if usuario_logado == "janaina.ferreira":
+    abas = ["Aprovação"]  # só Janaina
+elif usuarios[usuario_logado]["razao"] == "TODOS":
+    abas = ["Registro", "Relatório", "Fluxo de Aprovação", "Aprovação"]  # ADM
 else:
-    abas = ["Registro", "Fluxo de Aprovação"]
+    abas = ["Registro", "Relatório", "Fluxo de Aprovação"]  # Parceiro
 
 abas_objs = st.tabs(abas)
-
-# Mapeando abas dinamicamente
 tab_dict = {nome: abas_objs[i] for i, nome in enumerate(abas)}
 
 # ---------------- Aba Registro ----------------
@@ -143,7 +141,7 @@ if "Relatório" in tab_dict:
 
         if os.path.exists(arquivo_fluxo):
             df = pd.read_excel(arquivo_fluxo)
-            df = df[df["Status"] == "Aprovado"]  # só mostra aprovados
+            df = df[df["Status"] == "Aprovado"]
 
             if razao_permitida != "TODOS":
                 df = df[df["Razão Social"] == razao_permitida]
@@ -230,6 +228,7 @@ if "Aprovação" in tab_dict:
                 st.info("Nenhum registro pendente.")
         else:
             st.info("Nenhum registro pendente.")
+
 
 
 
