@@ -187,6 +187,11 @@ if "Fluxo de Aprovação" in tab_dict:
             if razao_permitida != "TODOS":
                 df = df[df["Razão Social"] == razao_permitida]
 
+            # 🔽 Filtro de status
+            filtro_status = st.selectbox("Filtrar por Status", ["Todos", "Aprovado", "Rejeitado", "Pendente"])
+            if filtro_status != "Todos":
+                df = df[df["Status"] == filtro_status]
+
             st.dataframe(df)
         else:
             st.info("Nenhum registro encontrado no fluxo.")
@@ -228,6 +233,8 @@ if "Aprovação" in tab_dict:
                 st.info("Nenhum registro pendente.")
         else:
             st.info("Nenhum registro pendente.")
+
+
 
 
 
