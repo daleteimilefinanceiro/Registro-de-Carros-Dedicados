@@ -12,7 +12,11 @@ usuarios = {
     "SRM2500123": {"senha": "ba7V1sK1fzYAgIGy", "razao": "2AR TRANSPORTES LTDA"},
     "SRM2501082": {"senha": "TbrTNBmm3E2WDi7y", "razao": "NEW EXPRESS BN LTDA."},
     "SRM2500909": {"senha": "sfgzEwAggNPsu43J", "razao": "GETLOG TRANSPORTES LTDA"},
-    "janaina.ferreira": {"senha": "1234", "razao": "TODOS"}
+    "janaina.ferreira": {"senha": "JF2025!", "razao": "TODOS"},
+    "daniela.conceicao": {"senha": "DC2025!", "razao": "TODOS"},
+    "paula.lacerda": {"senha": "PL2025!", "razao": "TODOS"},
+    "guilherme.barbosa": {"senha": "GB2025!", "razao": "TODOS"},
+    "rafael.reis": {"senha": "RR2025!", "razao": "TODOS"}
     # Adicione os outros aqui...
 }
 
@@ -233,6 +237,7 @@ if "Aprovação" in tab_dict:
                 st.info("Nenhum registro pendente.")
         else:
             st.info("Nenhum registro pendente.")
+
 
 
 
