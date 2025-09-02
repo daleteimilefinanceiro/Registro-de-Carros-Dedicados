@@ -67,8 +67,16 @@ operacoes = ["SHEIN", "SHEIN - D2D","TIKTOK", "NUVEMSHOP", "BENNET JEANS"]
 arquivo_fluxo = "fluxo.xlsx"
 
 # ---------------- ABAS ----------------
-if usuario_logado == "janaina.ferreira":
-    abas = ["Aprovação"]  # só Janaina
+# >>> ALTERAÇÃO: lista de usuários que só podem ver a aba "Aprovação"
+usuarios_aprovacao_somente = {
+    "janaina.ferreira",
+    "daniela.conceicao",
+    "paula.lacerda",
+    "guilherme.barbosa",
+    "rafael.reis",
+}
+if usuario_logado in usuarios_aprovacao_somente:
+    abas = ["Aprovação"]  # apenas aprovadores
 elif usuarios[usuario_logado]["razao"] == "TODOS":
     abas = ["Registro", "Relatório", "Fluxo de Aprovação", "Aprovação"]  # ADM
 else:
@@ -237,6 +245,7 @@ if "Aprovação" in tab_dict:
                 st.info("Nenhum registro pendente.")
         else:
             st.info("Nenhum registro pendente.")
+
 
 
 
