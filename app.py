@@ -16,7 +16,8 @@ usuarios = {
     "daniela.conceicao": {"senha": "DC2025!", "razao": "TODOS"},
     "paula.lacerda": {"senha": "PL2025!", "razao": "TODOS"},
     "guilherme.barbosa": {"senha": "GB2025!", "razao": "TODOS"},
-    "rafael.reis": {"senha": "RR2025!", "razao": "TODOS"}
+    "rafael.reis": {"senha": "RR2025!", "razao": "TODOS"},
+    "paula.soares": {"senha": "PS2025!", "razao": "TODOS"},
     # Adicione os outros aqui...
 }
 
@@ -74,6 +75,7 @@ usuarios_aprovacao_somente = {
     "paula.lacerda",
     "guilherme.barbosa",
     "rafael.reis",
+    "paula.soares",
 }
 if usuario_logado in usuarios_aprovacao_somente:
     abas = ["Aprovação"]  # apenas aprovadores
@@ -245,6 +247,7 @@ if "Aprovação" in tab_dict:
                 st.info("Nenhum registro pendente.")
         else:
             st.info("Nenhum registro pendente.")
+
 
 
 
