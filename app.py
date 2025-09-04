@@ -157,7 +157,7 @@ if "Registro" in tab_dict:
                         "Status": "Pendente",
                         "Aprovador": "Pendente",
                         "Data_da_Decisao": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                        "Motivo_Rejeicao": None
+                        "Motivo_Rejeicao": "Pendente"
                     }
                     registros.append(registro)
 
@@ -226,6 +226,7 @@ if "Aprovação" in tab_dict:
                 st.info("Nenhum registro pendente.")
         else:
             st.info("Nenhum registro pendente.")
+
 
 
 
