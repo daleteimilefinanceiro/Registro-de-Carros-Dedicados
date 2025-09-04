@@ -226,62 +226,64 @@ if "Aprovação" in tab_dict:
                 st.info("Nenhum registro pendente.")
         else:
             st.info("Nenhum registro pendente.")
+            # ---------------- Aba Fluxo de Aprovação ----------------
 # ---------------- Aba Fluxo de Aprovação ----------------
-# ---------------- Aba Aprovação ----------------
-if "Aprovação" in tab_dict:
-    with tab_dict["Aprovação"]:
-        st.header("✅ Aprovação de Registros")
-        
+if "Fluxo de Aprovacao" in tab_dict:
+    with tab_dict["Fluxo de Aprovacao"]:
+        st.header("📊 Fluxo de Aprovação")
+
         # Pega todos os registros
         result = supabase.table("registros_diarios").select("*").execute()
         data = result.data
 
         if data:
             df_fluxo = pd.DataFrame(data)
-            
-            # FILTRO DE STATUS
+
+            # FILTRO DE PARCEIRO (apenas registros do parceiro logado)
+            if razao_permitida != "TODOS":
+                df_fluxo = df_fluxo[df_fluxo["Razao_Social"] == razao_permitida]
+
+            # FILTRO DE MÊS, QUINZENA E STATUS
+            meses = [
+                "Todos","Janeiro","Fevereiro","Março","Abril","Maio","Junho",
+                "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"
+            ]
+            mes_filtro = st.selectbox("Filtrar por mês", meses)
+            quinzena_filtro = st.selectbox("Filtrar por quinzena", ["Todos", "1ª Quinzena", "2ª Quinzena"])
             status_filtro = st.selectbox("Filtrar por status", ["Todos", "Pendente", "Aprovado", "Rejeitado"])
+
+            df_filtrado = df_fluxo.copy()
+
+            if mes_filtro != "Todos":
+                df_filtrado = df_filtrado[df_filtrado["Mes"] == meses.index(mes_filtro)]
+            if quinzena_filtro != "Todos":
+                df_filtrado = df_filtrado[df_filtrado["Quinzena"] == (1 if quinzena_filtro == "1ª Quinzena" else 2)]
             if status_filtro != "Todos":
-                df_fluxo = df_fluxo[df_fluxo["Status"] == status_filtro]
+                df_filtrado = df_filtrado[df_filtrado["Status"] == status_filtro]
 
-            if not df_fluxo.empty:
-                for i, row in df_fluxo.iterrows():
-                    with st.expander(f"{row['Razao_Social']} - {row['Operacao']} - {row['Mes']} {row['Ano']}"):
-                        st.write(row)
-                        motivo = st.text_input("Motivo da rejeição (se rejeitar)", key=f"motivo_{i}")
-                        col1, col2 = st.columns(2)
+            if not df_filtrado.empty:
+                st.dataframe(df_filtrado)
 
-                        if row["Status"] == "Pendente":  # Só permite aprovar/rejeitar pendentes
-                            # Aprovar
-                            if col1.button("✔️ Aprovar", key=f"aprovar_{i}"):
-                                update_result = supabase.table("registros_diarios").update({
-                                    "Status": "Aprovado",
-                                    "Aprovador": usuario_logado,
-                                    "Data_da_Decisao": datetime.now()
-                                }).eq("id", row["id"]).execute()
-                                if update_result.data:
-                                    st.success("Registro aprovado!")
-                                    st.experimental_rerun()
-                                else:
-                                    st.error("Erro ao aprovar registro!")
+                # BOTÃO PARA BAIXAR RELATÓRIO
+                df_filtrado_excel = df_filtrado.copy()
+                df_filtrado_excel["Data_de_Submissao"] = pd.to_datetime(df_filtrado_excel["Data_de_Submissao"])
+                df_filtrado_excel["Data_da_Decisao"] = pd.to_datetime(df_filtrado_excel["Data_da_Decisao"], errors='coerce')
 
-                            # Rejeitar
-                            if col2.button("❌ Rejeitar", key=f"rejeitar_{i}"):
-                                update_result = supabase.table("registros_diarios").update({
-                                    "Status": "Rejeitado",
-                                    "Aprovador": usuario_logado,
-                                    "Data_da_Decisao": datetime.now(),
-                                    "Motivo_Rejeicao": motivo
-                                }).eq("id", row["id"]).execute()
-                                if update_result.data:
-                                    st.warning("Registro rejeitado!")
-                                    st.experimental_rerun()
-                                else:
-                                    st.error("Erro ao rejeitar registro!")
+                csv = df_filtrado_excel.to_csv(index=False).encode("utf-8")
+                st.download_button(
+                    label="📥 Baixar relatório filtrado",
+                    data=csv,
+                    file_name=f"relatorio_{usuario_logado}.csv",
+                    mime="text/csv"
+                )
             else:
                 st.info("Nenhum registro encontrado para este filtro.")
         else:
             st.info("Nenhum registro cadastrado.")
+
+
+
+
 
 
 
