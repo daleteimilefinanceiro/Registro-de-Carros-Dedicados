@@ -8,10 +8,10 @@ st.title("📋 Registro de Carros Dedicados")
 
 # ---------------- CONEXÃO COM SUPABASE ----------------
 url = "https://nndurpppvlwnozappqhl.supabase.co"
-key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5uZHVycHBwdmx3bm96YXBwcWhsIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1Njk5NDEyMiwiZXhwIjoyMDcyNTcwMTIyfQ.HSurs6kpKXCTRwR9eJE-GbZHYr0IZCQoWIaCODNHiT8"
+key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5uZHVycHBwdmx3bm96YXBwcWhsIiwicm9sZSI6InNlcnZl..."
 supabase = create_client(url, key)
 
-# ---------------- CONFIGURAÇÃO DE LOGIN ----------------
+# ---------------- LOGIN ----------------
 usuarios = {
     "financeadm": {"senha": "Dcschv2020@", "razao": "TODOS"},
     "SRM2500123": {"senha": "ba7V1sK1fzYAgIGy", "razao": "2AR TRANSPORTES LTDA"},
@@ -42,7 +42,6 @@ if st.session_state["usuario"] is None:
 
 usuario_logado = st.session_state["usuario"]
 razao_permitida = usuarios[usuario_logado]["razao"]
-
 st.sidebar.success(f"👤 Usuário logado: {usuario_logado} ({razao_permitida})")
 if st.sidebar.button("Sair"):
     st.session_state["usuario"] = None
@@ -56,31 +55,31 @@ razoes_sociais = [
     "FORTH TRANSPORTES LTDA","GABRIATO EMPORIO LTDA","GETLOG TRANSPORTES LTDA","GREEN LOG SERVICOS LOGISTICOS SUSTENTAVEIS E COMERCIO DE SUPRIMENTOS LTDA",
     "GOOD ASSESSORIA POSTAL EMBALAGENS E LOGISTICA LTDA","HBK COMERCIO E ENVIOS DE ENCOMENDAS LTDA","H&L EXPRESSO LTDA",
     "IMILE - ANDRE LUIZ DE SOUZA","IMILE - EMERSON DE SOUZA VELOSO","IMILE - GABRIELLA JOVINA MONTEIRO",
-    "IMILE - JOAO VICTOR CONCEICAO LOPES","IMILE - RODRIGO FREITAS CIRICO","KIM MAGAZINE LTDA","LOJAS MIUK LTDA",
+    "IMILE - JOÃO VICTOR CONCEIÇÃO LOPES","IMILE - RODRIGO FREITAS CIRICO","KIM MAGAZINE LTDA","LOJAS MIUK LTDA",
     "MOVIDOS MODA FASHION LTDA","NET CONECT CABOS E ACESSORIOS LTDA","NEW EXPRESS BN LTDA.","NOVALINK MT COMERCIAL LTDA",
     "PREST SERVI APOIO AO E-COMMERCE LTDA","QR PHONE ASSISTENCIA TECNICA LTDA","RESENSERV-RESENDE SERVICOS LTDA",
     "RF TRANSPORTES LTDA","RIVILOG LTDA","ROHNES TRANSPORTE E LOGISTICA EIRELI","TEC SERVICE TRANSPORTES LTDA",
-    "TEREZINHA APARECIDA PATEL SERVICOS DE LOGISTICA LTDA","WF FINGER TRANSPORTE E LOGISTICA LTDA"
+    "TEREZINHA APARECIDA PATEL SERVICOS DE LOGISTICA LTDA","WF FINGER TRANSPORTES E LOGISTICA LTDA"
 ]
 
-tipos_veiculos = ["AJUDANTE", "MOTO", "CARRO UTILITARIO", "FIORINO", "VAN", "VUC"]
+tipos_veiculos = ["AJUDANTE", "MOTO", "CARRO UTILITÁRIO", "FIORINO", "VAN", "VUC"]
 operacoes = ["SHEIN", "SHEIN - D2D","TIKTOK", "NUVEMSHOP", "BENNET JEANS"]
 
-# ---------------- MAPA DE COLUNAS (SEM ACENTOS) ----------------
+# ---------------- MAPA DE COLUNAS ----------------
 colunas_map = {
-    "Razao Social": "Razao_Social",
+    "Razão Social": "Razao_Social",
     "Ano": "Ano",
     "Quinzena": "Quinzena",
-    "Mes": "Mes",
-    "Operacao": "Operacao",
-    "Tipo de Veiculo": "Tipo_de_Veiculo",
+    "Mês": "Mes",
+    "Operação": "Operacao",
+    "Tipo de Veículo": "Tipo_de_Veiculo",
     "Quantidade": "Quantidade",
-    "Observacoes": "Observacoes",
-    "Data de Submissao": "Data_de_Submissao",
+    "Observações": "Observacoes",
+    "Data de Submissão": "Data_de_Submissao",
     "Status": "Status",
     "Aprovador": "Aprovador",
-    "Data da Decisao": "Data_da_Decisao",
-    "Motivo Rejeicao": "Motivo_Rejeicao"
+    "Data da Decisão": "Data_da_Decisao",
+    "Motivo Rejeição": "Motivo_Rejeicao"
 }
 
 # ---------------- ABAS ----------------
@@ -93,11 +92,11 @@ usuarios_aprovacao_somente = {
 }
 
 if usuario_logado in usuarios_aprovacao_somente:
-    abas = ["Aprovacao"]
+    abas = ["Aprovação"]
 elif usuarios[usuario_logado]["razao"] == "TODOS":
-    abas = ["Registro", "Relatorio", "Fluxo de Aprovacao", "Aprovacao"]
+    abas = ["Registro", "Relatório", "Fluxo de Aprovação", "Aprovação"]
 else:
-    abas = ["Registro", "Relatorio", "Fluxo de Aprovacao"]
+    abas = ["Registro", "Relatório", "Fluxo de Aprovação"]
 
 abas_objs = st.tabs(abas)
 tab_dict = {nome: abas_objs[i] for i, nome in enumerate(abas)}
@@ -120,6 +119,11 @@ if "Registro" in tab_dict:
         ])
         operacao = st.selectbox("Operação", operacoes)
 
+        # Converter Quinzena e Mês para int (1 ou 2 e 1 a 12)
+        quinzena_int = 1 if quinzena.startswith("1") else 2
+        mes_int = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho",
+                   "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"].index(mes)+1
+
         quantidades = {}
         st.subheader("Quantidade de Veículos")
         for veiculo in tipos_veiculos:
@@ -136,32 +140,55 @@ if "Registro" in tab_dict:
                     registro = {
                         colunas_map["Razão Social"]: razao_social,
                         colunas_map["Ano"]: int(ano),
-                        colunas_map["Quinzena"]: 1 if quinzena == "1ª Quinzena" else 2,
-                        colunas_map["Mes"]: ["Janeiro","Fevereiro","Março","Abril","Maio","Junho",
-                                             "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"].index(mes) + 1,
+                        colunas_map["Quinzena"]: quinzena_int,
+                        colunas_map["Mês"]: mes_int,
                         colunas_map["Operação"]: operacao,
-                        colunas_map["Tipo_de_Veiculo"]: veiculo,
+                        colunas_map["Tipo de Veículo"]: veiculo,
                         colunas_map["Quantidade"]: int(quantidade),
-                        colunas_map["Observacoes"]: observacoes,
-                        colunas_map["Data_de_Submissao"]: datetime.now(),
+                        colunas_map["Observações"]: observacoes,
+                        colunas_map["Data de Submissão"]: datetime.now(),
                         colunas_map["Status"]: "Pendente",
-                        colunas_map["Aprovador"]: None,
-                        colunas_map["Data_da_Decisao"]: None,
-                        colunas_map["Motivo_Rejeicao"]: None
+                        colunas_map["Aprovador"]: "",
+                        colunas_map["Data da Decisão"]: None,
+                        colunas_map["Motivo Rejeição"]: ""
                     }
                     registros.append(registro)
 
             if registros:
+                # Inserindo no Supabase
                 for registro in registros:
-                    response = supabase.table("registros_diarios").insert(registro).execute()
-                    if response.error:
-                        st.error(f"Erro ao enviar registro: {response.error.message}")
-                        break
-                else:
-                    st.success("✅ Registro submetido para aprovação no banco!")
-                    st.dataframe(pd.DataFrame(registros))
+                    supabase.table("registros_diarios").insert(registro).execute()
+                st.success("✅ Registro submetido para aprovação no banco!")
+                st.dataframe(pd.DataFrame(registros))
             else:
                 st.warning("⚠️ Nenhuma quantidade informada.")
+
+# ---------------- Aba Relatório ----------------
+if "Relatório" in tab_dict:
+    with tab_dict["Relatório"]:
+        st.header("📊 Relatório e Exportação")
+        data = supabase.table("registros_diarios").select("*").execute().data
+        if data:
+            df = pd.DataFrame(data)
+            df = df[df["Status"] == "Aprovado"]
+            if razao_permitida != "TODOS":
+                df = df[df["Razao_Social"] == razao_permitida]
+            st.dataframe(df)
+        else:
+            st.warning("⚠️ Nenhum registro aprovado encontrado.")
+
+# ---------------- Aba Fluxo de Aprovação ----------------
+if "Fluxo de Aprovação" in tab_dict:
+    with tab_dict["Fluxo de Aprovação"]:
+        st.header("🔎 Fluxo de Aprovação")
+        data = supabase.table("registros_diarios").select("*").execute().data
+        if data:
+            df = pd.DataFrame(data)
+            if razao_permitida != "TODOS":
+                df = df[df["Razao_Social"] == razao_permitida]
+            st.dataframe(df)
+        else:
+            st.info("Nenhum registro encontrado no fluxo.")
 
 # ---------------- Aba Aprovação ----------------
 if "Aprovação" in tab_dict:
@@ -177,35 +204,29 @@ if "Aprovação" in tab_dict:
                         st.write(row)
                         motivo = st.text_input("Motivo da rejeição (se rejeitar)", key=f"motivo_{i}")
                         col1, col2 = st.columns(2)
-
                         if col1.button("✔️ Aprovar", key=f"aprovar_{i}"):
-                            response = supabase.table("registros_diarios").update({
-                                "Status": "Aprovado",
-                                "Aprovador": usuario_logado,
-                                "Data_da_Decisao": datetime.now()
+                            supabase.table("registros_diarios").update({
+                                "Status":"Aprovado",
+                                "Aprovador":usuario_logado,
+                                "Data_da_Decisao":datetime.now()
                             }).eq("id", row["id"]).execute()
-                            if response.error:
-                                st.error(f"Erro ao aprovar registro: {response.error.message}")
-                            else:
-                                st.success("Registro aprovado!")
-                                st.rerun()
-
+                            st.success("Registro aprovado!")
+                            st.rerun()
                         if col2.button("❌ Rejeitar", key=f"rejeitar_{i}"):
-                            response = supabase.table("registros_diarios").update({
-                                "Status": "Rejeitado",
-                                "Aprovador": usuario_logado,
-                                "Data_da_Decisao": datetime.now(),
-                                "Motivo_Rejeicao": motivo
+                            supabase.table("registros_diarios").update({
+                                "Status":"Rejeitado",
+                                "Aprovador":usuario_logado,
+                                "Data_da_Decisao":datetime.now(),
+                                "Motivo_Rejeicao":motivo
                             }).eq("id", row["id"]).execute()
-                            if response.error:
-                                st.error(f"Erro ao rejeitar registro: {response.error.message}")
-                            else:
-                                st.warning("Registro rejeitado!")
-                                st.rerun()
+                            st.warning("Registro rejeitado!")
+                            st.rerun()
             else:
                 st.info("Nenhum registro pendente.")
         else:
             st.info("Nenhum registro pendente.")
+
+
 
 
 
