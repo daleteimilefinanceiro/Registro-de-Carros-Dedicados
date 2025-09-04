@@ -71,16 +71,16 @@ colunas_map = {
     "Razão Social": "Razao_Social",
     "Ano": "Ano",
     "Quinzena": "Quinzena",
-    "Mes": "Mes",
-    "Operacao": "Operacao",
-    "Tipo de Veiculo": "Tipo_de_Veiculo",
+    "Mês": "Mes",
+    "Operação": "Operacao",
+    "Tipo de Veículo": "Tipo_de_Veiculo",
     "Quantidade": "Quantidade",
-    "Observacoes": "Observacoes",
-    "Data de Submissao": "Data_de_Submissao",
+    "Observações": "Observacoes",
+    "Data de Submissão": "Data_de_Submissao",
     "Status": "Status",
     "Aprovador": "Aprovador",
     "Data da Decisao": "Data_da_Decisao",
-    "Motivo Rejeicao": "Motivo_Rejeicao"
+    "Motivo Rejeição": "Motivo_Rejeicao"
 }
 
 # ---------------- ABAS ----------------
@@ -206,6 +206,7 @@ if "Aprovação" in tab_dict:
                 st.info("Nenhum registro pendente.")
         else:
             st.info("Nenhum registro pendente.")
+
 
 
 
