@@ -227,43 +227,63 @@ if "Aprovação" in tab_dict:
         else:
             st.info("Nenhum registro pendente.")
 # ---------------- Aba Fluxo de Aprovação ----------------
-if "Fluxo de Aprovacao" in tab_dict:
-    with tab_dict["Fluxo de Aprovacao"]:
-        st.header("📊 Fluxo de Aprovação - Relatório do Parceiro")
-
-        # Pega os registros do Supabase
+# ---------------- Aba Aprovação ----------------
+if "Aprovação" in tab_dict:
+    with tab_dict["Aprovação"]:
+        st.header("✅ Aprovação de Registros")
+        
+        # Pega todos os registros
         result = supabase.table("registros_diarios").select("*").execute()
         data = result.data
 
         if data:
-            df = pd.DataFrame(data)
+            df_fluxo = pd.DataFrame(data)
+            
+            # FILTRO DE STATUS
+            status_filtro = st.selectbox("Filtrar por status", ["Todos", "Pendente", "Aprovado", "Rejeitado"])
+            if status_filtro != "Todos":
+                df_fluxo = df_fluxo[df_fluxo["Status"] == status_filtro]
 
-            # Filtrar apenas os registros do parceiro logado
-            if razao_permitida != "TODOS":
-                df = df[df["Razao_Social"] == razao_permitida]
+            if not df_fluxo.empty:
+                for i, row in df_fluxo.iterrows():
+                    with st.expander(f"{row['Razao_Social']} - {row['Operacao']} - {row['Mes']} {row['Ano']}"):
+                        st.write(row)
+                        motivo = st.text_input("Motivo da rejeição (se rejeitar)", key=f"motivo_{i}")
+                        col1, col2 = st.columns(2)
 
-            # Filtros de mês e quinzena
-            mes = st.selectbox("Filtrar por mês", [
-                "Todos","Janeiro","Fevereiro","Março","Abril","Maio","Junho",
-                "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"
-            ])
-            quinzena = st.selectbox("Filtrar por quinzena", ["Todas","1ª Quinzena","2ª Quinzena"])
+                        if row["Status"] == "Pendente":  # Só permite aprovar/rejeitar pendentes
+                            # Aprovar
+                            if col1.button("✔️ Aprovar", key=f"aprovar_{i}"):
+                                update_result = supabase.table("registros_diarios").update({
+                                    "Status": "Aprovado",
+                                    "Aprovador": usuario_logado,
+                                    "Data_da_Decisao": datetime.now()
+                                }).eq("id", row["id"]).execute()
+                                if update_result.data:
+                                    st.success("Registro aprovado!")
+                                    st.experimental_rerun()
+                                else:
+                                    st.error("Erro ao aprovar registro!")
 
-            if mes != "Todos":
-                df = df[df["Mes"] == ["Janeiro","Fevereiro","Março","Abril","Maio","Junho",
-                                      "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"].index(mes)+1]
-            if quinzena != "Todas":
-                df = df[df["Quinzena"] == (1 if quinzena == "1ª Quinzena" else 2)]
-
-            if not df.empty:
-                st.dataframe(df)
-                # Botão para baixar CSV
-                csv = df.to_csv(index=False).encode("utf-8")
-                st.download_button("⬇️ Baixar CSV", data=csv, file_name="relatorio_fluxo.csv", mime="text/csv")
+                            # Rejeitar
+                            if col2.button("❌ Rejeitar", key=f"rejeitar_{i}"):
+                                update_result = supabase.table("registros_diarios").update({
+                                    "Status": "Rejeitado",
+                                    "Aprovador": usuario_logado,
+                                    "Data_da_Decisao": datetime.now(),
+                                    "Motivo_Rejeicao": motivo
+                                }).eq("id", row["id"]).execute()
+                                if update_result.data:
+                                    st.warning("Registro rejeitado!")
+                                    st.experimental_rerun()
+                                else:
+                                    st.error("Erro ao rejeitar registro!")
             else:
-                st.info("Nenhum registro encontrado para os filtros selecionados.")
+                st.info("Nenhum registro encontrado para este filtro.")
         else:
             st.info("Nenhum registro cadastrado.")
+
+
 
 
 
