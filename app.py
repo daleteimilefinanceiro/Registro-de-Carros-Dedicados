@@ -113,11 +113,8 @@ if "Registro" in tab_dict:
             razao_social = st.selectbox("Razão Social", razoes_sociais)
 
         ano = st.number_input("Ano", min_value=2000, max_value=2100, step=1)
-        quinzena = st.selectbox("Quinzena", ["1ª Quinzena", "2ª Quinzena"])
-        mes = st.selectbox("Mês", [
-            "Janeiro","Fevereiro","Março","Abril","Maio","Junho",
-            "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"
-        ])
+        quinzena = st.selectbox("Quinzena", [1, 2])
+        mes = st.selectbox("Mês", list(range(1, 13)))
         operacao = st.selectbox("Operação", operacoes)
 
         quantidades = {}
@@ -133,30 +130,26 @@ if "Registro" in tab_dict:
             registros = []
             for veiculo, quantidade in quantidades.items():
                 if quantidade > 0:
-                    registro = {
+                    registros.append({
                         colunas_map["Razão Social"]: razao_social,
-                        colunas_map["Ano"]: ano,
-                        colunas_map["Quinzena"]: quinzena,
-                        colunas_map["Mês"]: mes,
+                        colunas_map["Ano"]: int(ano),
+                        colunas_map["Quinzena"]: int(quinzena),
+                        colunas_map["Mes"]: int(mes),
                         colunas_map["Operação"]: operacao,
                         colunas_map["Tipo de Veículo"]: veiculo,
-                        colunas_map["Quantidade"]: quantidade,
+                        colunas_map["Quantidade"]: int(quantidade),
                         colunas_map["Observações"]: observacoes,
                         colunas_map["Data de Submissão"]: datetime.now(),
                         colunas_map["Status"]: "Pendente",
                         colunas_map["Aprovador"]: "",
-                        colunas_map["Data da Decisão"]: "",
+                        colunas_map["Data da Decisão"]: None,
                         colunas_map["Motivo Rejeição"]: ""
-                    }
-                    registros.append(registro)
+                    })
 
             if registros:
-                # Inserindo no Supabase
-                for registro in registros:
-                    response = supabase.table("registros_diarios").insert(registro).execute()
-                    if response.status_code != 201:
-                        st.error(f"Erro ao enviar registro: {response.data}")
-                        break
+                response = supabase.table("registros_diarios").insert(registros).execute()
+                if response.status_code != 201:
+                    st.error(f"Erro ao enviar registro: {response.data}")
                 else:
                     st.success("✅ Registro submetido para aprovação no banco!")
                     st.dataframe(pd.DataFrame(registros))
@@ -208,7 +201,7 @@ if "Aprovação" in tab_dict:
                             supabase.table("registros_diarios").update({
                                 "Status":"Aprovado",
                                 "Aprovador":usuario_logado,
-                                "Data_da_Decisao":datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+                                "Data_da_Decisao":datetime.now()
                             }).eq("id", row["id"]).execute()
                             st.success("Registro aprovado!")
                             st.rerun()
@@ -216,7 +209,7 @@ if "Aprovação" in tab_dict:
                             supabase.table("registros_diarios").update({
                                 "Status":"Rejeitado",
                                 "Aprovador":usuario_logado,
-                                "Data_da_Decisao":datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
+                                "Data_da_Decisao":datetime.now(),
                                 "Motivo_Rejeicao":motivo
                             }).eq("id", row["id"]).execute()
                             st.warning("Registro rejeitado!")
@@ -225,6 +218,8 @@ if "Aprovação" in tab_dict:
                 st.info("Nenhum registro pendente.")
         else:
             st.info("Nenhum registro pendente.")
+
+
 
 
 
