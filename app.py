@@ -179,69 +179,57 @@ if "Aprovação" in tab_dict:
     with tab_dict["Aprovação"]:
         st.header("✅ Aprovação de Registros")
 
-        # Inicializa flag de atualização
-        if "atualizou" not in st.session_state:
-            st.session_state["atualizou"] = False
-
-        # Pega registros pendentes
+        # Pega todos os registros pendentes
         result = supabase.table("registros_diarios").select("*").eq("Status", "Pendente").execute()
         data = result.data
 
-        if data:
+        if not data:
+            st.info("Nenhum registro pendente.")
+        else:
             df_pendentes = pd.DataFrame(data)
 
-            if df_pendentes.empty:
-                st.info("Nenhum registro pendente.")
-            else:
-                for i, row in df_pendentes.iterrows():
-                    with st.expander(f"{row['Razao_Social']} - {row['Operacao']} - {row['Mes']}/{row['Ano']} - {row['Tipo_de_Veiculo']}"):
-                        st.write({
-                            "Quantidade": row["Quantidade"],
-                            "Observações": row.get("Observacoes", "")
-                        })
-                        motivo = st.text_input("Motivo da rejeição (se rejeitar)", key=f"motivo_{i}")
-                        col1, col2 = st.columns(2)
+            for i, row in df_pendentes.iterrows():
+                with st.expander(f"{row['Razao_Social']} - {row['Operacao']} - {row['Mes']}/{row['Ano']} - {row['Tipo_de_Veiculo']}"):
+                    # Mostra detalhes relevantes
+                    st.write({
+                        "Quantidade": row["Quantidade"],
+                        "Observações": row.get("Observacoes", "")
+                    })
 
-                        # Aprovar registro
-                        if col1.button("✔️ Aprovar", key=f"aprovar_{i}"):
+                    motivo = st.text_input("Motivo da rejeição (se rejeitar)", key=f"motivo_{i}")
+                    col1, col2 = st.columns(2)
+
+                    # Aprovar registro
+                    if col1.button("✔️ Aprovar", key=f"aprovar_{i}"):
+                        update_result = supabase.table("registros_diarios").update({
+                            "Status": "Aprovado",
+                            "Aprovador": usuario_logado,
+                            "Data_da_Decisao": datetime.now().isoformat(),
+                            "Motivo_Rejeicao": "N/A"
+                        }).eq("id", row["id"]).execute()
+
+                        if hasattr(update_result, "error") and update_result.error:
+                            st.error(f"Erro ao aprovar: {update_result.error.message}")
+                        else:
+                            st.success("Registro aprovado!")
+
+                    # Rejeitar registro
+                    if col2.button("❌ Rejeitar", key=f"rejeitar_{i}"):
+                        if not motivo:
+                            st.warning("Digite o motivo da rejeição antes de rejeitar!")
+                        else:
                             update_result = supabase.table("registros_diarios").update({
-                                "Status": "Aprovado",
+                                "Status": "Rejeitado",
                                 "Aprovador": usuario_logado,
                                 "Data_da_Decisao": datetime.now().isoformat(),
-                                "Motivo_Rejeicao": "N/A"
+                                "Motivo_Rejeicao": motivo
                             }).eq("id", row["id"]).execute()
 
                             if hasattr(update_result, "error") and update_result.error:
-                                st.error(f"Erro ao aprovar: {update_result.error.message}")
+                                st.error(f"Erro ao rejeitar: {update_result.error.message}")
                             else:
-                                st.success("Registro aprovado!")
-                                st.session_state["atualizou"] = True
+                                st.warning("Registro rejeitado!")
 
-                        # Rejeitar registro
-                        if col2.button("❌ Rejeitar", key=f"rejeitar_{i}"):
-                            if not motivo:
-                                st.warning("Digite o motivo da rejeição antes de rejeitar!")
-                            else:
-                                update_result = supabase.table("registros_diarios").update({
-                                    "Status": "Rejeitado",
-                                    "Aprovador": usuario_logado,
-                                    "Data_da_Decisao": datetime.now().isoformat(),
-                                    "Motivo_Rejeicao": motivo
-                                }).eq("id", row["id"]).execute()
-
-                                if hasattr(update_result, "error") and update_result.error:
-                                    st.error(f"Erro ao rejeitar: {update_result.error.message}")
-                                else:
-                                    st.warning("Registro rejeitado!")
-                                    st.session_state["atualizou"] = True
-
-        else:
-            st.info("Nenhum registro pendente.")
-
-        # Rerun fora do loop, se houve atualização
-        if st.session_state.get("atualizou", False):
-            st.session_state["atualizou"] = False
-            st.experimental_rerun()
 
 # ---------------- Aba Fluxo de Aprovação ----------------
 if "Fluxo de Aprovacao" in tab_dict:
@@ -404,6 +392,7 @@ if "Relatorio" in tab_dict:
                 )
         else:
             st.info("Nenhum registro encontrado.")
+
 
 
 
