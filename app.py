@@ -155,7 +155,7 @@ if "Registro" in tab_dict:
                         "Observacoes": observacoes if observacoes else None,
                         "Data_de_Submissao": datetime.now().isoformat(),  # <- CORREÇÃO AQUI
                         "Status": "Pendente",
-                        "Aprovador": None,
+                        "Aprovador": "Pendente",
                         "Data_da_Decisao": None,
                         "Motivo_Rejeicao": None
                     }
@@ -226,6 +226,7 @@ if "Aprovação" in tab_dict:
                 st.info("Nenhum registro pendente.")
         else:
             st.info("Nenhum registro pendente.")
+
 
 
 
