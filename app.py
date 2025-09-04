@@ -175,28 +175,34 @@ if "Registro" in tab_dict:
                 st.warning("⚠️ Nenhuma quantidade informada.")
                 
 # ---------------- Aba Aprovação ----------------
-# ---------------- Aba Aprovação ----------------
 if "Aprovação" in tab_dict:
     with tab_dict["Aprovação"]:
         st.header("✅ Aprovação de Registros")
 
-        # Pega todos os registros
+        # Pega registros pendentes
         result = supabase.table("registros_diarios").select("*").execute()
         data = result.data
 
         if data:
-            df_fluxo = pd.DataFrame(data)
-            df_pendentes = df_fluxo[df_fluxo["Status"] == "Pendente"]
+            df = pd.DataFrame(data)
+
+            # Apenas pendentes
+            df_pendentes = df[df["Status"] == "Pendente"]
+
+            # Se o usuário não tem acesso a "TODOS", filtra pela razão social permitida
+            if razao_permitida != "TODOS":
+                df_pendentes = df_pendentes[df_pendentes["Razao_Social"] == razao_permitida]
 
             if df_pendentes.empty:
-                st.info("Nenhum registro pendente.")
+                st.info("Nenhum registro pendente para aprovação.")
             else:
-                atualizou = False  # flag para rerun
+                # Flag para rerun
+                atualizou = False
 
                 for i, row in df_pendentes.iterrows():
                     with st.expander(f"{row['Razao_Social']} - {row['Operacao']} - {row['Mes']}/{row['Ano']} - {row['Tipo_de_Veiculo']}"):
                         st.write(row)
-                        motivo = st.text_input("Motivo da rejeição (se houver)", key=f"motivo_{i}")
+                        motivo = st.text_input("Motivo da rejeição (se rejeitar)", key=f"motivo_{i}")
                         col1, col2 = st.columns(2)
 
                         # Aprovar registro
@@ -212,7 +218,7 @@ if "Aprovação" in tab_dict:
                                 st.error(f"Erro ao aprovar: {update_result.error.message}")
                             else:
                                 st.success("Registro aprovado!")
-                                atualizou = True  # marca atualização
+                                atualizou = True
 
                         # Rejeitar registro
                         if col2.button("❌ Rejeitar", key=f"rejeitar_{i}"):
@@ -232,11 +238,12 @@ if "Aprovação" in tab_dict:
                                     st.warning("Registro rejeitado!")
                                     atualizou = True
 
-                # Rerun fora do loop
+                # Se houve atualização, rerun fora do loop
                 if atualizou:
                     st.experimental_rerun()
         else:
             st.info("Nenhum registro encontrado.")
+
 
 # ---------------- Aba Fluxo de Aprovação ----------------
 if "Fluxo de Aprovacao" in tab_dict:
@@ -399,6 +406,7 @@ if "Relatorio" in tab_dict:
                 )
         else:
             st.info("Nenhum registro encontrado.")
+
 
 
 
