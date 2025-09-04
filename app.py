@@ -106,60 +106,71 @@ tab_dict = {nome: abas_objs[i] for i, nome in enumerate(abas)}
 if "Registro" in tab_dict:
     with tab_dict["Registro"]:
         st.header("📌 Registro de Veículos")
+        
+        # Razão Social
         if razao_permitida != "TODOS":
             razao_social = razao_permitida
             st.info(f"🔒 Você só pode registrar para: **{razao_social}**")
         else:
             razao_social = st.selectbox("Razão Social", razoes_sociais)
 
+        # Ano, Quinzena e Mês
         ano = st.number_input("Ano", min_value=2000, max_value=2100, step=1)
         quinzena = st.selectbox("Quinzena", ["1ª Quinzena", "2ª Quinzena"])
         mes = st.selectbox("Mês", [
             "Janeiro","Fevereiro","Março","Abril","Maio","Junho",
             "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"
         ])
-        operacao = st.selectbox("Operacao", operacoes)
 
+        # Operação
+        operacao = st.selectbox("Operação", operacoes)
+
+        # Quantidade de veículos
         quantidades = {}
         st.subheader("Quantidade de Veículos")
         for veiculo in tipos_veiculos:
             col1, col2 = st.columns([3,1])
             col1.write(veiculo)
-            quantidades[veiculo] = col2.number_input(f"Qtd {veiculo}", min_value=0, step=1, key=f"{veiculo}_qtd")
+            quantidades[veiculo] = col2.number_input(
+                f"Qtd {veiculo}", min_value=0, step=1, key=f"{veiculo}_qtd"
+            )
 
-        observacoes = st.text_area("Observacoes (opcional)")
+        # Observações
+        observacoes = st.text_area("Observações (opcional)")
 
-        if st.button("Submeter para aprovacao"):
+        # Botão de submissão
+        if st.button("Submeter para aprovação"):
             registros = []
             for veiculo, quantidade in quantidades.items():
                 if quantidade > 0:
                     registro = {
-                        colunas_map["Razao Social"]: razao_social,
-                        colunas_map["Ano"]: int(ano),
-                        colunas_map["Quinzena"]: 1 if quinzena == "1ª Quinzena" else 2,
-                        colunas_map["Mes"]: ["Janeiro","Fevereiro","Março","Abril","Maio","Junho",
-                                             "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"].index(mes) + 1,
-                        colunas_map["Operacao"]: operacao,
-                        colunas_map["Tipo de Veiculo"]: veiculo,
-                        colunas_map["Quantidade"]: int(quantidade),
-                        colunas_map["Observacoes"]: observacoes,
-                        colunas_map["Data de Submissao"]: datetime.now().isoformat(),
-                        colunas_map["Status"]: "Pendente",
-                        colunas_map["Aprovador"]: None,
-                        colunas_map["Data da Decisao"]: None,
-                        colunas_map["Motivo Rejeicao"]: None
+                        "Razao_Social": razao_social,
+                        "Ano": int(ano),
+                        "Quinzena": 1 if quinzena == "1ª Quinzena" else 2,
+                        "Mes": ["Janeiro","Fevereiro","Março","Abril","Maio","Junho",
+                                "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"].index(mes) + 1,
+                        "Operacao": operacao,
+                        "Tipo_de_Veiculo": veiculo,
+                        "Quantidade": int(quantidade),
+                        "Observacoes": observacoes if observacoes else None,
+                        "Data_de_Submissao": datetime.now(),
+                        "Status": "Pendente",
+                        "Aprovador": None,
+                        "Data_da_Decisao": None,
+                        "Motivo_Rejeicao": None
                     }
                     registros.append(registro)
 
             if registros:
-                for registro in registros:
-                    response = supabase.table("registros_diarios").insert(registro).execute()
-                    if response.error:
+                try:
+                    response = supabase.table("registros_diarios").insert(registros).execute()
+                    if hasattr(response, "error") and response.error:
                         st.error(f"Erro ao enviar registro: {response.error.message}")
-                        break
-                else:
-                    st.success("✅ Registro submetido para aprovacao no banco!")
-                    st.dataframe(pd.DataFrame(registros))
+                    else:
+                        st.success("✅ Registro submetido para aprovação no banco!")
+                        st.dataframe(pd.DataFrame(registros))
+                except Exception as e:
+                    st.error(f"Erro ao enviar para o Supabase: {e}")
             else:
                 st.warning("⚠️ Nenhuma quantidade informada.")
 
@@ -215,6 +226,7 @@ if "Aprovação" in tab_dict:
                 st.info("Nenhum registro pendente.")
         else:
             st.info("Nenhum registro pendente.")
+
 
 
 
