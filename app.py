@@ -1,10 +1,15 @@
 import streamlit as st
 import pandas as pd
-import os
-import io
 from datetime import datetime
+from supabase import create_client
 
-st.title("📋Registro de Carros Dedicados")
+st.set_page_config(layout="wide")
+st.title("📋 Registro de Carros Dedicados")
+
+# ---------------- CONEXÃO COM SUPABASE ----------------
+url = "https://nndurpppvlwnozappqhl.supabase.co"
+key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5uZHVycHBwdmx3bm96YXBwcWhsIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1Njk5NDEyMiwiZXhwIjoyMDcyNTcwMTIyfQ.HSurs6kpKXCTRwR9eJE-GbZHYr0IZCQoWIaCODNHiT8"
+supabase = create_client(url, key)
 
 # ---------------- CONFIGURAÇÃO DE LOGIN ----------------
 usuarios = {
@@ -17,10 +22,8 @@ usuarios = {
     "paula.lacerda": {"senha": "PL2025!", "razao": "TODOS"},
     "guilherme.barbosa": {"senha": "GB2025!", "razao": "TODOS"},
     "rafael.reis": {"senha": "RR2025!", "razao": "TODOS"}
-    # Adicione os outros aqui...
 }
 
-# Estado de login
 if "usuario" not in st.session_state:
     st.session_state["usuario"] = None
 
@@ -28,7 +31,6 @@ if st.session_state["usuario"] is None:
     st.subheader("🔐 Login")
     usuario = st.text_input("Usuário")
     senha = st.text_input("Senha", type="password")
-
     if st.button("Entrar"):
         if usuario in usuarios and usuarios[usuario]["senha"] == senha:
             st.session_state["usuario"] = usuario
@@ -64,10 +66,24 @@ razoes_sociais = [
 tipos_veiculos = ["AJUDANTE", "MOTO", "CARRO UTILITÁRIO", "FIORINO", "VAN", "VUC"]
 operacoes = ["SHEIN", "SHEIN - D2D","TIKTOK", "NUVEMSHOP", "BENNET JEANS"]
 
-arquivo_fluxo = "fluxo.xlsx"
+# ---------------- MAPA DE COLUNAS ----------------
+colunas_map = {
+    "Razão Social": "Razao_Social",
+    "Ano": "Ano",
+    "Quinzena": "Quinzena",
+    "Mês": "Mes",
+    "Operação": "Operacao",
+    "Tipo de Veículo": "Tipo_de_Veiculo",
+    "Quantidade": "Quantidade",
+    "Observações": "Observacoes",
+    "Data de Submissão": "Data_de_Submissao",
+    "Status": "Status",
+    "Aprovador": "Aprovador",
+    "Data da Decisão": "Data_da_Decisao",
+    "Motivo Rejeição": "Motivo_Rejeicao"
+}
 
 # ---------------- ABAS ----------------
-# >>> ALTERAÇÃO: lista de usuários que só podem ver a aba "Aprovação"
 usuarios_aprovacao_somente = {
     "janaina.ferreira",
     "daniela.conceicao",
@@ -75,12 +91,13 @@ usuarios_aprovacao_somente = {
     "guilherme.barbosa",
     "rafael.reis",
 }
+
 if usuario_logado in usuarios_aprovacao_somente:
-    abas = ["Aprovação"]  # apenas aprovadores
+    abas = ["Aprovação"]
 elif usuarios[usuario_logado]["razao"] == "TODOS":
-    abas = ["Registro", "Relatório", "Fluxo de Aprovação", "Aprovação"]  # ADM
+    abas = ["Registro", "Relatório", "Fluxo de Aprovação", "Aprovação"]
 else:
-    abas = ["Registro", "Relatório", "Fluxo de Aprovação"]  # Parceiro
+    abas = ["Registro", "Relatório", "Fluxo de Aprovação"]
 
 abas_objs = st.tabs(abas)
 tab_dict = {nome: abas_objs[i] for i, nome in enumerate(abas)}
@@ -89,7 +106,6 @@ tab_dict = {nome: abas_objs[i] for i, nome in enumerate(abas)}
 if "Registro" in tab_dict:
     with tab_dict["Registro"]:
         st.header("📌 Registro de Veículos")
-
         if razao_permitida != "TODOS":
             razao_social = razao_permitida
             st.info(f"🔒 Você só pode registrar para: **{razao_social}**")
@@ -107,7 +123,7 @@ if "Registro" in tab_dict:
         quantidades = {}
         st.subheader("Quantidade de Veículos")
         for veiculo in tipos_veiculos:
-            col1, col2 = st.columns([3, 1])
+            col1, col2 = st.columns([3,1])
             col1.write(veiculo)
             quantidades[veiculo] = col2.number_input(f"Qtd {veiculo}", min_value=0, step=1, key=f"{veiculo}_qtd")
 
@@ -117,32 +133,33 @@ if "Registro" in tab_dict:
             registros = []
             for veiculo, quantidade in quantidades.items():
                 if quantidade > 0:
-                    registros.append({
-                        "Razão Social": razao_social,
-                        "Ano": ano,
-                        "Quinzena": quinzena,
-                        "Mês": mes,
-                        "Operação": operacao,
-                        "Tipo de Veículo": veiculo,
-                        "Quantidade": quantidade,
-                        "Observações": observacoes,
-                        "Data de Submissão": datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
-                        "Status": "Pendente",
-                        "Aprovador": "",
-                        "Data da Decisão": "",
-                        "Motivo Rejeição": ""
-                    })
+                    registro = {
+                        colunas_map["Razão Social"]: razao_social,
+                        colunas_map["Ano"]: ano,
+                        colunas_map["Quinzena"]: quinzena,
+                        colunas_map["Mês"]: mes,
+                        colunas_map["Operação"]: operacao,
+                        colunas_map["Tipo de Veículo"]: veiculo,
+                        colunas_map["Quantidade"]: quantidade,
+                        colunas_map["Observações"]: observacoes,
+                        colunas_map["Data de Submissão"]: datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
+                        colunas_map["Status"]: "Pendente",
+                        colunas_map["Aprovador"]: "",
+                        colunas_map["Data da Decisão"]: "",
+                        colunas_map["Motivo Rejeição"]: ""
+                    }
+                    registros.append(registro)
 
             if registros:
-                df_novo = pd.DataFrame(registros)
-                if os.path.exists(arquivo_fluxo):
-                    df_existente = pd.read_excel(arquivo_fluxo)
-                    df_final = pd.concat([df_existente, df_novo], ignore_index=True)
+                # Inserindo no Supabase
+                for registro in registros:
+                    response = supabase.table("Registros_Diarios").insert(registro).execute()
+                    if response.status_code != 201:
+                        st.error(f"Erro ao enviar registro: {response.data}")
+                        break
                 else:
-                    df_final = df_novo
-                df_final.to_excel(arquivo_fluxo, index=False)
-                st.success("✅ Registro submetido para aprovação!")
-                st.dataframe(df_novo)
+                    st.success("✅ Registro submetido para aprovação no banco!")
+                    st.dataframe(pd.DataFrame(registros))
             else:
                 st.warning("⚠️ Nenhuma quantidade informada.")
 
@@ -150,41 +167,13 @@ if "Registro" in tab_dict:
 if "Relatório" in tab_dict:
     with tab_dict["Relatório"]:
         st.header("📊 Relatório e Exportação")
-
-        if os.path.exists(arquivo_fluxo):
-            df = pd.read_excel(arquivo_fluxo)
+        data = supabase.table("Registros_Diarios").select("*").execute().data
+        if data:
+            df = pd.DataFrame(data)
             df = df[df["Status"] == "Aprovado"]
-
             if razao_permitida != "TODOS":
-                df = df[df["Razão Social"] == razao_permitida]
-
-            if razao_permitida == "TODOS":
-                filtro_razao = st.selectbox("Filtrar por Razão Social", ["Todas"] + razoes_sociais)
-                if filtro_razao != "Todas":
-                    df = df[df["Razão Social"] == filtro_razao]
-
-            filtro_quinzena = st.selectbox("Filtrar por Quinzena", ["Todas", "1ª Quinzena", "2ª Quinzena"])
-            filtro_mes = st.selectbox("Filtrar por Mês", ["Todos"] + [
-                "Janeiro","Fevereiro","Março","Abril","Maio","Junho",
-                "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"
-            ])
-
-            if filtro_quinzena != "Todas":
-                df = df[df["Quinzena"] == filtro_quinzena]
-            if filtro_mes != "Todos":
-                df = df[df["Mês"] == filtro_mes]
-
+                df = df[df["Razao_Social"] == razao_permitida]
             st.dataframe(df)
-
-            output = io.BytesIO()
-            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-                df.to_excel(writer, index=False, sheet_name="Relatório")
-            st.download_button(
-                label="📥 Exportar Excel",
-                data=output.getvalue(),
-                file_name="relatorio_filtrado.xlsx",
-                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            )
         else:
             st.warning("⚠️ Nenhum registro aprovado encontrado.")
 
@@ -192,13 +181,11 @@ if "Relatório" in tab_dict:
 if "Fluxo de Aprovação" in tab_dict:
     with tab_dict["Fluxo de Aprovação"]:
         st.header("🔎 Fluxo de Aprovação")
-
-        if os.path.exists(arquivo_fluxo):
-            df = pd.read_excel(arquivo_fluxo)
-
+        data = supabase.table("Registros_Diarios").select("*").execute().data
+        if data:
+            df = pd.DataFrame(data)
             if razao_permitida != "TODOS":
-                df = df[df["Razão Social"] == razao_permitida]
-
+                df = df[df["Razao_Social"] == razao_permitida]
             st.dataframe(df)
         else:
             st.info("Nenhum registro encontrado no fluxo.")
@@ -207,39 +194,39 @@ if "Fluxo de Aprovação" in tab_dict:
 if "Aprovação" in tab_dict:
     with tab_dict["Aprovação"]:
         st.header("✅ Aprovação de Registros")
-
-        if os.path.exists(arquivo_fluxo):
-            df_fluxo = pd.read_excel(arquivo_fluxo)
+        data = supabase.table("Registros_Diarios").select("*").execute().data
+        if data:
+            df_fluxo = pd.DataFrame(data)
             df_pendentes = df_fluxo[df_fluxo["Status"] == "Pendente"]
-
             if not df_pendentes.empty:
                 for i, row in df_pendentes.iterrows():
-                    with st.expander(f"{row['Razão Social']} - {row['Operação']} - {row['Mês']} {row['Ano']}"):
+                    with st.expander(f"{row['Razao_Social']} - {row['Operacao']} - {row['Mes']} {row['Ano']}"):
                         st.write(row)
-
                         motivo = st.text_input("Motivo da rejeição (se rejeitar)", key=f"motivo_{i}")
                         col1, col2 = st.columns(2)
-
                         if col1.button("✔️ Aprovar", key=f"aprovar_{i}"):
-                            df_fluxo.loc[i, "Status"] = "Aprovado"
-                            df_fluxo.loc[i, "Aprovador"] = usuario_logado
-                            df_fluxo.loc[i, "Data da Decisão"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-                            df_fluxo.to_excel(arquivo_fluxo, index=False)
+                            supabase.table("Registros_Diarios").update({
+                                "Status":"Aprovado",
+                                "Aprovador":usuario_logado,
+                                "Data_da_Decisao":datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+                            }).eq("id", row["id"]).execute()
                             st.success("Registro aprovado!")
                             st.rerun()
-
                         if col2.button("❌ Rejeitar", key=f"rejeitar_{i}"):
-                            df_fluxo.loc[i, "Status"] = "Rejeitado"
-                            df_fluxo.loc[i, "Aprovador"] = usuario_logado
-                            df_fluxo.loc[i, "Data da Decisão"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-                            df_fluxo.loc[i, "Motivo Rejeição"] = motivo
-                            df_fluxo.to_excel(arquivo_fluxo, index=False)
+                            supabase.table("Registros_Diarios").update({
+                                "Status":"Rejeitado",
+                                "Aprovador":usuario_logado,
+                                "Data_da_Decisao":datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
+                                "Motivo_Rejeicao":motivo
+                            }).eq("id", row["id"]).execute()
                             st.warning("Registro rejeitado!")
                             st.rerun()
             else:
                 st.info("Nenhum registro pendente.")
         else:
             st.info("Nenhum registro pendente.")
+
+
 
 
 
