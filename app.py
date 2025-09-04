@@ -179,28 +179,30 @@ if "Aprovação" in tab_dict:
     with tab_dict["Aprovação"]:
         st.header("✅ Aprovação de Registros")
 
-        # Pega todos os registros pendentes
-        result = supabase.table("registros_diarios").select("*").execute()
+        # Inicializa flag de atualização
+        if "atualizou" not in st.session_state:
+            st.session_state["atualizou"] = False
+
+        # Pega registros pendentes
+        result = supabase.table("registros_diarios").select("*").eq("Status", "Pendente").execute()
         data = result.data
 
         if data:
-            df_fluxo = pd.DataFrame(data)
-            df_pendentes = df_fluxo[df_fluxo["Status"] == "Pendente"]
+            df_pendentes = pd.DataFrame(data)
 
             if df_pendentes.empty:
                 st.info("Nenhum registro pendente.")
             else:
-                # Inicializa flag de atualização no session_state
-                if "atualizou" not in st.session_state:
-                    st.session_state.atualizou = False
-
                 for i, row in df_pendentes.iterrows():
                     with st.expander(f"{row['Razao_Social']} - {row['Operacao']} - {row['Mes']}/{row['Ano']} - {row['Tipo_de_Veiculo']}"):
-                        st.write(row)
+                        st.write({
+                            "Quantidade": row["Quantidade"],
+                            "Observações": row.get("Observacoes", "")
+                        })
                         motivo = st.text_input("Motivo da rejeição (se rejeitar)", key=f"motivo_{i}")
                         col1, col2 = st.columns(2)
 
-                        # Aprovar
+                        # Aprovar registro
                         if col1.button("✔️ Aprovar", key=f"aprovar_{i}"):
                             update_result = supabase.table("registros_diarios").update({
                                 "Status": "Aprovado",
@@ -213,11 +215,13 @@ if "Aprovação" in tab_dict:
                                 st.error(f"Erro ao aprovar: {update_result.error.message}")
                             else:
                                 st.success("Registro aprovado!")
-                                st.session_state.atualizou = True
+                                st.session_state["atualizou"] = True
 
-                        # Rejeitar
+                        # Rejeitar registro
                         if col2.button("❌ Rejeitar", key=f"rejeitar_{i}"):
-                            if motivo:
+                            if not motivo:
+                                st.warning("Digite o motivo da rejeição antes de rejeitar!")
+                            else:
                                 update_result = supabase.table("registros_diarios").update({
                                     "Status": "Rejeitado",
                                     "Aprovador": usuario_logado,
@@ -229,18 +233,15 @@ if "Aprovação" in tab_dict:
                                     st.error(f"Erro ao rejeitar: {update_result.error.message}")
                                 else:
                                     st.warning("Registro rejeitado!")
-                                    st.session_state.atualizou = True
-                            else:
-                                st.warning("Digite o motivo antes de rejeitar!")
+                                    st.session_state["atualizou"] = True
 
-                # Rerun apenas depois do loop
-                if st.session_state.atualizou:
-                    st.session_state.atualizou = False
-                    st.experimental_rerun()
         else:
-            st.info("Nenhum registro encontrado.")
+            st.info("Nenhum registro pendente.")
 
-
+        # Rerun fora do loop, se houve atualização
+        if st.session_state.get("atualizou", False):
+            st.session_state["atualizou"] = False
+            st.experimental_rerun()
 
 # ---------------- Aba Fluxo de Aprovação ----------------
 if "Fluxo de Aprovacao" in tab_dict:
@@ -403,6 +404,7 @@ if "Relatorio" in tab_dict:
                 )
         else:
             st.info("Nenhum registro encontrado.")
+
 
 
 
