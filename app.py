@@ -348,6 +348,58 @@ if "Aprovacao" in tab_dict and usuario_logado in usuarios_aprovacao_somente:
         else:
             st.info("Nenhum registro pendente.")
 
+# ---------------- Aba Relatorio ----------------
+if "Relatorio" in tab_dict:
+    with tab_dict["Relatorio"]:
+        st.header("📊 Relatório de Registros Aprovados")
+
+        # Pega todos os registros
+        result = supabase.table("registros_diarios").select("*").execute()
+        data = result.data
+
+        if data:
+            df = pd.DataFrame(data)
+
+            # Filtra somente aprovados
+            df_aprovados = df[df["Status"] == "Aprovado"]
+
+            # Se o usuário não tem acesso a "TODOS", filtra pela razão social permitida
+            if razao_permitida != "TODOS":
+                df_aprovados = df_aprovados[df_aprovados["Razao_Social"] == razao_permitida]
+
+            if df_aprovados.empty:
+                st.info("Nenhum registro aprovado para exibir.")
+            else:
+                # Filtros
+                meses = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho",
+                         "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"]
+                mes_selecionado = st.selectbox("Mês", ["Todos"] + meses)
+                quinzena_selecionada = st.selectbox("Quinzena", ["Todos", "1ª Quinzena", "2ª Quinzena"])
+
+                # Filtra por mês
+                if mes_selecionado != "Todos":
+                    mes_num = meses.index(mes_selecionado) + 1
+                    df_aprovados = df_aprovados[df_aprovados["Mes"] == mes_num]
+
+                # Filtra por quinzena
+                if quinzena_selecionada != "Todos":
+                    quinzena_num = 1 if quinzena_selecionada == "1ª Quinzena" else 2
+                    df_aprovados = df_aprovados[df_aprovados["Quinzena"] == quinzena_num]
+
+                # Exibe tabela
+                st.dataframe(df_aprovados.sort_values(["Ano","Mes","Quinzena","Razao_Social"]))
+
+                # Botão para baixar CSV
+                csv = df_aprovados.to_csv(index=False).encode("utf-8")
+                st.download_button(
+                    label="📥 Baixar CSV",
+                    data=csv,
+                    file_name="relatorio_registros_aprovados.csv",
+                    mime="text/csv"
+                )
+        else:
+            st.info("Nenhum registro encontrado.")
+
 
 
 
