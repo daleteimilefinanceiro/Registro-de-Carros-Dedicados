@@ -68,7 +68,7 @@ operacoes = ["SHEIN", "SHEIN - D2D","TIKTOK", "NUVEMSHOP", "BENNET JEANS"]
 
 # ---------------- MAPA DE COLUNAS (SEM ACENTOS) ----------------
 colunas_map = {
-    "Razao Social": "Razao_Social",
+    "Razão Social": "Razao_Social",
     "Ano": "Ano",
     "Quinzena": "Quinzena",
     "Mes": "Mes",
@@ -206,6 +206,7 @@ if "Aprovação" in tab_dict:
                 st.info("Nenhum registro pendente.")
         else:
             st.info("Nenhum registro pendente.")
+
 
 
 
