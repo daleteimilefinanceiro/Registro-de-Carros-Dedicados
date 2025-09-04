@@ -56,31 +56,31 @@ razoes_sociais = [
     "FORTH TRANSPORTES LTDA","GABRIATO EMPORIO LTDA","GETLOG TRANSPORTES LTDA","GREEN LOG SERVICOS LOGISTICOS SUSTENTAVEIS E COMERCIO DE SUPRIMENTOS LTDA",
     "GOOD ASSESSORIA POSTAL EMBALAGENS E LOGISTICA LTDA","HBK COMERCIO E ENVIOS DE ENCOMENDAS LTDA","H&L EXPRESSO LTDA",
     "IMILE - ANDRE LUIZ DE SOUZA","IMILE - EMERSON DE SOUZA VELOSO","IMILE - GABRIELLA JOVINA MONTEIRO",
-    "IMILE - JOÃO VICTOR CONCEIÇÃO LOPES","IMILE - RODRIGO FREITAS CIRICO","KIM MAGAZINE LTDA","LOJAS MIUK LTDA",
+    "IMILE - JOAO VICTOR CONCEICAO LOPES","IMILE - RODRIGO FREITAS CIRICO","KIM MAGAZINE LTDA","LOJAS MIUK LTDA",
     "MOVIDOS MODA FASHION LTDA","NET CONECT CABOS E ACESSORIOS LTDA","NEW EXPRESS BN LTDA.","NOVALINK MT COMERCIAL LTDA",
     "PREST SERVI APOIO AO E-COMMERCE LTDA","QR PHONE ASSISTENCIA TECNICA LTDA","RESENSERV-RESENDE SERVICOS LTDA",
     "RF TRANSPORTES LTDA","RIVILOG LTDA","ROHNES TRANSPORTE E LOGISTICA EIRELI","TEC SERVICE TRANSPORTES LTDA",
     "TEREZINHA APARECIDA PATEL SERVICOS DE LOGISTICA LTDA","WF FINGER TRANSPORTE E LOGISTICA LTDA"
 ]
 
-tipos_veiculos = ["AJUDANTE", "MOTO", "CARRO UTILITÁRIO", "FIORINO", "VAN", "VUC"]
+tipos_veiculos = ["AJUDANTE", "MOTO", "CARRO UTILITARIO", "FIORINO", "VAN", "VUC"]
 operacoes = ["SHEIN", "SHEIN - D2D","TIKTOK", "NUVEMSHOP", "BENNET JEANS"]
 
-# ---------------- MAPA DE COLUNAS ----------------
+# ---------------- MAPA DE COLUNAS (SEM ACENTOS) ----------------
 colunas_map = {
-    "Razão Social": "Razao_Social",
+    "Razao Social": "Razao_Social",
     "Ano": "Ano",
     "Quinzena": "Quinzena",
-    "Mês": "Mes",
-    "Operação": "Operacao",
-    "Tipo de Veículo": "Tipo_de_Veiculo",
+    "Mes": "Mes",
+    "Operacao": "Operacao",
+    "Tipo de Veiculo": "Tipo_de_Veiculo",
     "Quantidade": "Quantidade",
-    "Observações": "Observacoes",
-    "Data de Submissão": "Data_de_Submissao",
+    "Observacoes": "Observacoes",
+    "Data de Submissao": "Data_de_Submissao",
     "Status": "Status",
     "Aprovador": "Aprovador",
-    "Data da Decisão": "Data_da_Decisao",
-    "Motivo Rejeição": "Motivo_Rejeicao"
+    "Data da Decisao": "Data_da_Decisao",
+    "Motivo Rejeicao": "Motivo_Rejeicao"
 }
 
 # ---------------- ABAS ----------------
@@ -93,11 +93,11 @@ usuarios_aprovacao_somente = {
 }
 
 if usuario_logado in usuarios_aprovacao_somente:
-    abas = ["Aprovação"]
+    abas = ["Aprovacao"]
 elif usuarios[usuario_logado]["razao"] == "TODOS":
-    abas = ["Registro", "Relatório", "Fluxo de Aprovação", "Aprovação"]
+    abas = ["Registro", "Relatorio", "Fluxo de Aprovacao", "Aprovacao"]
 else:
-    abas = ["Registro", "Relatório", "Fluxo de Aprovação"]
+    abas = ["Registro", "Relatorio", "Fluxo de Aprovacao"]
 
 abas_objs = st.tabs(abas)
 tab_dict = {nome: abas_objs[i] for i, nome in enumerate(abas)}
@@ -105,61 +105,65 @@ tab_dict = {nome: abas_objs[i] for i, nome in enumerate(abas)}
 # ---------------- Aba Registro ----------------
 if "Registro" in tab_dict:
     with tab_dict["Registro"]:
-        st.header("📌 Registro de Veículos")
+        st.header("📌 Registro de Veiculos")
         if razao_permitida != "TODOS":
             razao_social = razao_permitida
             st.info(f"🔒 Você só pode registrar para: **{razao_social}**")
         else:
-            razao_social = st.selectbox("Razão Social", razoes_sociais)
+            razao_social = st.selectbox("Razao Social", razoes_sociais)
 
         ano = st.number_input("Ano", min_value=2000, max_value=2100, step=1)
-        quinzena = st.selectbox("Quinzena", [1, 2])
-        mes = st.selectbox("Mês", list(range(1, 13)))
-        operacao = st.selectbox("Operação", operacoes)
+        quinzena = st.number_input("Quinzena", min_value=1, max_value=2, step=1)
+        mes = st.number_input("Mes", min_value=1, max_value=12, step=1)
+        operacao = st.selectbox("Operacao", operacoes)
 
         quantidades = {}
-        st.subheader("Quantidade de Veículos")
+        st.subheader("Quantidade de Veiculos")
         for veiculo in tipos_veiculos:
             col1, col2 = st.columns([3,1])
             col1.write(veiculo)
             quantidades[veiculo] = col2.number_input(f"Qtd {veiculo}", min_value=0, step=1, key=f"{veiculo}_qtd")
 
-        observacoes = st.text_area("Observações (opcional)")
+        observacoes = st.text_area("Observacoes (opcional)")
 
-        if st.button("Submeter para aprovação"):
+        if st.button("Submeter para aprovacao"):
             registros = []
             for veiculo, quantidade in quantidades.items():
                 if quantidade > 0:
-                    registros.append({
-                        colunas_map["Razão Social"]: razao_social,
+                    registro = {
+                        colunas_map["Razao Social"]: razao_social,
                         colunas_map["Ano"]: int(ano),
                         colunas_map["Quinzena"]: int(quinzena),
                         colunas_map["Mes"]: int(mes),
-                        colunas_map["Operação"]: operacao,
-                        colunas_map["Tipo de Veículo"]: veiculo,
+                        colunas_map["Operacao"]: operacao,
+                        colunas_map["Tipo de Veiculo"]: veiculo,
                         colunas_map["Quantidade"]: int(quantidade),
-                        colunas_map["Observações"]: observacoes,
-                        colunas_map["Data de Submissão"]: datetime.now(),
+                        colunas_map["Observacoes"]: observacoes,
+                        colunas_map["Data de Submissao"]: datetime.now(),
                         colunas_map["Status"]: "Pendente",
                         colunas_map["Aprovador"]: "",
-                        colunas_map["Data da Decisão"]: None,
-                        colunas_map["Motivo Rejeição"]: ""
-                    })
+                        colunas_map["Data da Decisao"]: None,
+                        colunas_map["Motivo Rejeicao"]: ""
+                    }
+                    registros.append(registro)
 
             if registros:
-                response = supabase.table("registros_diarios").insert(registros).execute()
-                if response.status_code != 201:
-                    st.error(f"Erro ao enviar registro: {response.data}")
+                # Inserindo no Supabase
+                for registro in registros:
+                    response = supabase.table("registros_diarios").insert(registro).execute()
+                    if response.status_code != 201:
+                        st.error(f"Erro ao enviar registro: {response.data}")
+                        break
                 else:
-                    st.success("✅ Registro submetido para aprovação no banco!")
+                    st.success("✅ Registro submetido para aprovacao no banco!")
                     st.dataframe(pd.DataFrame(registros))
             else:
                 st.warning("⚠️ Nenhuma quantidade informada.")
 
-# ---------------- Aba Relatório ----------------
-if "Relatório" in tab_dict:
-    with tab_dict["Relatório"]:
-        st.header("📊 Relatório e Exportação")
+# ---------------- Aba Relatorio ----------------
+if "Relatorio" in tab_dict:
+    with tab_dict["Relatorio"]:
+        st.header("📊 Relatorio e Exportacao")
         data = supabase.table("registros_diarios").select("*").execute().data
         if data:
             df = pd.DataFrame(data)
@@ -170,10 +174,10 @@ if "Relatório" in tab_dict:
         else:
             st.warning("⚠️ Nenhum registro aprovado encontrado.")
 
-# ---------------- Aba Fluxo de Aprovação ----------------
-if "Fluxo de Aprovação" in tab_dict:
-    with tab_dict["Fluxo de Aprovação"]:
-        st.header("🔎 Fluxo de Aprovação")
+# ---------------- Aba Fluxo de Aprovacao ----------------
+if "Fluxo de Aprovacao" in tab_dict:
+    with tab_dict["Fluxo de Aprovacao"]:
+        st.header("🔎 Fluxo de Aprovacao")
         data = supabase.table("registros_diarios").select("*").execute().data
         if data:
             df = pd.DataFrame(data)
@@ -183,10 +187,10 @@ if "Fluxo de Aprovação" in tab_dict:
         else:
             st.info("Nenhum registro encontrado no fluxo.")
 
-# ---------------- Aba Aprovação ----------------
-if "Aprovação" in tab_dict:
-    with tab_dict["Aprovação"]:
-        st.header("✅ Aprovação de Registros")
+# ---------------- Aba Aprovacao ----------------
+if "Aprovacao" in tab_dict:
+    with tab_dict["Aprovacao"]:
+        st.header("✅ Aprovacao de Registros")
         data = supabase.table("registros_diarios").select("*").execute().data
         if data:
             df_fluxo = pd.DataFrame(data)
@@ -195,7 +199,7 @@ if "Aprovação" in tab_dict:
                 for i, row in df_pendentes.iterrows():
                     with st.expander(f"{row['Razao_Social']} - {row['Operacao']} - {row['Mes']} {row['Ano']}"):
                         st.write(row)
-                        motivo = st.text_input("Motivo da rejeição (se rejeitar)", key=f"motivo_{i}")
+                        motivo = st.text_input("Motivo da rejeicao (se rejeitar)", key=f"motivo_{i}")
                         col1, col2 = st.columns(2)
                         if col1.button("✔️ Aprovar", key=f"aprovar_{i}"):
                             supabase.table("registros_diarios").update({
@@ -218,6 +222,7 @@ if "Aprovação" in tab_dict:
                 st.info("Nenhum registro pendente.")
         else:
             st.info("Nenhum registro pendente.")
+
 
 
 
