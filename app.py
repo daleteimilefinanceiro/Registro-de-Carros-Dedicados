@@ -71,7 +71,7 @@ colunas_map = {
     "Razão Social": "Razao_Social",
     "Ano": "Ano",
     "Quinzena": "Quinzena",
-    "Mês": "Mes",
+    "Mes": "Mes",
     "Operação": "Operacao",
     "Tipo de Veículo": "Tipo_de_Veiculo",
     "Quantidade": "Quantidade",
@@ -114,7 +114,7 @@ if "Registro" in tab_dict:
 
         ano = st.number_input("Ano", min_value=2000, max_value=2100, step=1)
         quinzena = st.selectbox("Quinzena", [1, 2])
-        mes = st.selectbox("Mês", list(range(1, 13)))
+        mes = st.selectbox("Mes", list(range(1, 13)))
         operacao = st.selectbox("Operação", operacoes)
 
         quantidades = {}
@@ -218,6 +218,7 @@ if "Aprovação" in tab_dict:
                 st.info("Nenhum registro pendente.")
         else:
             st.info("Nenhum registro pendente.")
+
 
 
 
