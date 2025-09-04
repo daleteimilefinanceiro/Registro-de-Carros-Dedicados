@@ -153,7 +153,7 @@ if "Registro" in tab_dict:
             if registros:
                 # Inserindo no Supabase
                 for registro in registros:
-                    response = supabase.table("Registros_Diarios").insert(registro).execute()
+                    response = supabase.table("registros_diarios").insert(registro).execute()
                     if response.status_code != 201:
                         st.error(f"Erro ao enviar registro: {response.data}")
                         break
@@ -167,7 +167,7 @@ if "Registro" in tab_dict:
 if "Relatório" in tab_dict:
     with tab_dict["Relatório"]:
         st.header("📊 Relatório e Exportação")
-        data = supabase.table("Registros_Diarios").select("*").execute().data
+        data = supabase.table("registros_diarios").select("*").execute().data
         if data:
             df = pd.DataFrame(data)
             df = df[df["Status"] == "Aprovado"]
@@ -181,7 +181,7 @@ if "Relatório" in tab_dict:
 if "Fluxo de Aprovação" in tab_dict:
     with tab_dict["Fluxo de Aprovação"]:
         st.header("🔎 Fluxo de Aprovação")
-        data = supabase.table("Registros_Diarios").select("*").execute().data
+        data = supabase.table("registros_diarios").select("*").execute().data
         if data:
             df = pd.DataFrame(data)
             if razao_permitida != "TODOS":
@@ -194,7 +194,7 @@ if "Fluxo de Aprovação" in tab_dict:
 if "Aprovação" in tab_dict:
     with tab_dict["Aprovação"]:
         st.header("✅ Aprovação de Registros")
-        data = supabase.table("Registros_Diarios").select("*").execute().data
+        data = supabase.table("registros_diarios").select("*").execute().data
         if data:
             df_fluxo = pd.DataFrame(data)
             df_pendentes = df_fluxo[df_fluxo["Status"] == "Pendente"]
@@ -205,7 +205,7 @@ if "Aprovação" in tab_dict:
                         motivo = st.text_input("Motivo da rejeição (se rejeitar)", key=f"motivo_{i}")
                         col1, col2 = st.columns(2)
                         if col1.button("✔️ Aprovar", key=f"aprovar_{i}"):
-                            supabase.table("Registros_Diarios").update({
+                            supabase.table("registros_diarios").update({
                                 "Status":"Aprovado",
                                 "Aprovador":usuario_logado,
                                 "Data_da_Decisao":datetime.now().strftime("%d/%m/%Y %H:%M:%S")
@@ -213,7 +213,7 @@ if "Aprovação" in tab_dict:
                             st.success("Registro aprovado!")
                             st.rerun()
                         if col2.button("❌ Rejeitar", key=f"rejeitar_{i}"):
-                            supabase.table("Registros_Diarios").update({
+                            supabase.table("registros_diarios").update({
                                 "Status":"Rejeitado",
                                 "Aprovador":usuario_logado,
                                 "Data_da_Decisao":datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
@@ -225,6 +225,7 @@ if "Aprovação" in tab_dict:
                 st.info("Nenhum registro pendente.")
         else:
             st.info("Nenhum registro pendente.")
+
 
 
 
