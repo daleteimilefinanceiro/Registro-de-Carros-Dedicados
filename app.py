@@ -139,10 +139,10 @@ if "Registro" in tab_dict:
                         colunas_map["Tipo de Veiculo"]: veiculo,
                         colunas_map["Quantidade"]: int(quantidade),
                         colunas_map["Observacoes"]: observacoes,
-                        colunas_map["Data de Submissao"]: datetime.now(),
+                        colunas_map["Data de Submissao"]: datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                         colunas_map["Status"]: "Pendente",
                         colunas_map["Aprovador"]: "",
-                        colunas_map["Data da Decisao"]: None,
+                        "Data_da_Decisao": datetime.now().strftime("%Y-%m-%d %H:%M:%S") None,
                         colunas_map["Motivo Rejeicao"]: ""
                     }
                     registros.append(registro)
@@ -222,6 +222,7 @@ if "Aprovacao" in tab_dict:
                 st.info("Nenhum registro pendente.")
         else:
             st.info("Nenhum registro pendente.")
+
 
 
 
