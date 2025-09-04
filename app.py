@@ -142,7 +142,7 @@ if "Registro" in tab_dict:
                         colunas_map["Tipo de Veículo"]: veiculo,
                         colunas_map["Quantidade"]: quantidade,
                         colunas_map["Observações"]: observacoes,
-                        colunas_map["Data de Submissão"]: datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
+                        colunas_map["Data de Submissão"]: datetime.now(),
                         colunas_map["Status"]: "Pendente",
                         colunas_map["Aprovador"]: "",
                         colunas_map["Data da Decisão"]: "",
@@ -225,6 +225,7 @@ if "Aprovação" in tab_dict:
                 st.info("Nenhum registro pendente.")
         else:
             st.info("Nenhum registro pendente.")
+
 
 
 
