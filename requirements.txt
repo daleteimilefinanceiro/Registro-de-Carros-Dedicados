@@ -2,4 +2,4 @@ pandas
 streamlit
 openpyxl
 xlsxwriter
-supabase
+supabase-py
