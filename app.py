@@ -226,6 +226,45 @@ if "Aprovação" in tab_dict:
                 st.info("Nenhum registro pendente.")
         else:
             st.info("Nenhum registro pendente.")
+# ---------------- Aba Fluxo de Aprovação ----------------
+if "Fluxo de Aprovacao" in tab_dict:
+    with tab_dict["Fluxo de Aprovacao"]:
+        st.header("📊 Fluxo de Aprovação - Relatório do Parceiro")
+
+        # Pega os registros do Supabase
+        result = supabase.table("registros_diarios").select("*").execute()
+        data = result.data
+
+        if data:
+            df = pd.DataFrame(data)
+
+            # Filtrar apenas os registros do parceiro logado
+            if razao_permitida != "TODOS":
+                df = df[df["Razao_Social"] == razao_permitida]
+
+            # Filtros de mês e quinzena
+            mes = st.selectbox("Filtrar por mês", [
+                "Todos","Janeiro","Fevereiro","Março","Abril","Maio","Junho",
+                "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"
+            ])
+            quinzena = st.selectbox("Filtrar por quinzena", ["Todas","1ª Quinzena","2ª Quinzena"])
+
+            if mes != "Todos":
+                df = df[df["Mes"] == ["Janeiro","Fevereiro","Março","Abril","Maio","Junho",
+                                      "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"].index(mes)+1]
+            if quinzena != "Todas":
+                df = df[df["Quinzena"] == (1 if quinzena == "1ª Quinzena" else 2)]
+
+            if not df.empty:
+                st.dataframe(df)
+                # Botão para baixar CSV
+                csv = df.to_csv(index=False).encode("utf-8")
+                st.download_button("⬇️ Baixar CSV", data=csv, file_name="relatorio_fluxo.csv", mime="text/csv")
+            else:
+                st.info("Nenhum registro encontrado para os filtros selecionados.")
+        else:
+            st.info("Nenhum registro cadastrado.")
+
 
 
 
