@@ -179,18 +179,17 @@ if "Aprovação" in tab_dict:
     with tab_dict["Aprovação"]:
         st.header("✅ Aprovação de Registros")
 
-        # Pega todos os registros
+        # Flag de rerun segura
+        if "atualizou" not in st.session_state:
+            st.session_state["atualizou"] = False
+
+        # Filtra apenas registros que o usuário pode aprovar
         result = supabase.table("registros_diarios").select("*").execute()
         data = result.data
 
         if data:
             df_fluxo = pd.DataFrame(data)
-
-            # Filtra apenas registros pendentes
             df_pendentes = df_fluxo[df_fluxo["Status"] == "Pendente"]
-
-            # Flag para saber se houve atualização
-            atualizou = False
 
             if not df_pendentes.empty:
                 for i, row in df_pendentes.iterrows():
@@ -207,12 +206,12 @@ if "Aprovação" in tab_dict:
                                 "Data_da_Decisao": datetime.now().isoformat(),
                                 "Motivo_Rejeicao": "N/A"
                             }).eq("id", row["id"]).execute()
-
+                            
                             if hasattr(update_result, "error") and update_result.error:
                                 st.error(f"Erro ao aprovar: {update_result.error.message}")
                             else:
                                 st.success("Registro aprovado!")
-                                atualizou = True
+                                st.session_state["atualizou"] = True  # marca atualização
 
                         # Rejeitar registro
                         if col2.button("❌ Rejeitar", key=f"rejeitar_{i}"):
@@ -225,21 +224,21 @@ if "Aprovação" in tab_dict:
                                     "Data_da_Decisao": datetime.now().isoformat(),
                                     "Motivo_Rejeicao": motivo
                                 }).eq("id", row["id"]).execute()
-
+                                
                                 if hasattr(update_result, "error") and update_result.error:
                                     st.error(f"Erro ao rejeitar: {update_result.error.message}")
                                 else:
                                     st.warning("Registro rejeitado!")
-                                    atualizou = True
-
+                                    st.session_state["atualizou"] = True  # marca atualização
             else:
                 st.info("Nenhum registro pendente.")
-
-            # Rerun apenas depois de renderizar todos os componentes
-            if atualizou:
-                st.experimental_rerun()
         else:
-            st.info("Nenhum registro encontrado.")
+            st.info("Nenhum registro pendente.")
+
+        # Rerun seguro fora do loop
+        if st.session_state["atualizou"]:
+            st.session_state["atualizou"] = False
+            st.experimental_rerun()
 
 
 # ---------------- Aba Fluxo de Aprovação ----------------
@@ -351,6 +350,7 @@ if "Aprovacao" in tab_dict and usuario_logado in usuarios_aprovacao_somente:
                 st.info("Nenhum registro pendente para aprovação.")
         else:
             st.info("Nenhum registro pendente.")
+
 
 
 
