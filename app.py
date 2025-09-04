@@ -1,8 +1,13 @@
 import streamlit as st
 import pandas as pd
-import os
 import io
 from datetime import datetime
+from supabase import create_client, Client
+
+# ---------------- CONFIGURAÇÃO DO SUPABASE ----------------
+url = "https://nndurpppvlwnozappqhl.supabase.co"
+key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5uZHVycHBwdmx3bm96YXBwcWhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY5OTQxMjIsImV4cCI6MjA3MjU3MDEyMn0.dQsYwTBRbpL0o2wH9Fbs1-8VobLYmizlGy_EvsArp2U"
+supabase: Client = create_client(url, key)
 
 st.title("📋Registro de Carros Dedicados")
 
@@ -18,10 +23,8 @@ usuarios = {
     "guilherme.barbosa": {"senha": "GB2025!", "razao": "TODOS"},
     "rafael.reis": {"senha": "RR2025!", "razao": "TODOS"},
     "paula.soares": {"senha": "PS2025!", "razao": "TODOS"},
-    # Adicione os outros aqui...
 }
 
-# Estado de login
 if "usuario" not in st.session_state:
     st.session_state["usuario"] = None
 
@@ -65,10 +68,7 @@ razoes_sociais = [
 tipos_veiculos = ["AJUDANTE", "MOTO", "CARRO UTILITÁRIO", "FIORINO", "VAN", "VUC"]
 operacoes = ["SHEIN", "SHEIN - D2D","TIKTOK", "NUVEMSHOP", "BENNET JEANS"]
 
-arquivo_fluxo = "fluxo.xlsx"
-
 # ---------------- ABAS ----------------
-# >>> ALTERAÇÃO: lista de usuários que só podem ver a aba "Aprovação"
 usuarios_aprovacao_somente = {
     "janaina.ferreira",
     "daniela.conceicao",
@@ -78,11 +78,11 @@ usuarios_aprovacao_somente = {
     "paula.soares",
 }
 if usuario_logado in usuarios_aprovacao_somente:
-    abas = ["Aprovação"]  # apenas aprovadores
+    abas = ["Aprovação"]
 elif usuarios[usuario_logado]["razao"] == "TODOS":
-    abas = ["Registro", "Relatório", "Fluxo de Aprovação", "Aprovação"]  # ADM
+    abas = ["Registro", "Relatório", "Fluxo de Aprovação", "Aprovação"]
 else:
-    abas = ["Registro", "Relatório", "Fluxo de Aprovação"]  # Parceiro
+    abas = ["Registro", "Relatório", "Fluxo de Aprovação"]
 
 abas_objs = st.tabs(abas)
 tab_dict = {nome: abas_objs[i] for i, nome in enumerate(abas)}
@@ -116,54 +116,41 @@ if "Registro" in tab_dict:
         observacoes = st.text_area("Observações (opcional)")
 
         if st.button("Submeter para aprovação"):
-            registros = []
             for veiculo, quantidade in quantidades.items():
                 if quantidade > 0:
-                    registros.append({
-                        "Razão Social": razao_social,
-                        "Ano": ano,
-                        "Quinzena": quinzena,
-                        "Mês": mes,
-                        "Operação": operacao,
-                        "Tipo de Veículo": veiculo,
-                        "Quantidade": quantidade,
-                        "Observações": observacoes,
-                        "Data de Submissão": datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
-                        "Status": "Pendente",
-                        "Aprovador": "",
-                        "Data da Decisão": "",
-                        "Motivo Rejeição": ""
-                    })
-
-            if registros:
-                df_novo = pd.DataFrame(registros)
-                if os.path.exists(arquivo_fluxo):
-                    df_existente = pd.read_excel(arquivo_fluxo)
-                    df_final = pd.concat([df_existente, df_novo], ignore_index=True)
-                else:
-                    df_final = df_novo
-                df_final.to_excel(arquivo_fluxo, index=False)
-                st.success("✅ Registro submetido para aprovação!")
-                st.dataframe(df_novo)
-            else:
-                st.warning("⚠️ Nenhuma quantidade informada.")
+                    supabase.table("registros").insert({
+                        "RAZAO_SOCI": razao_social,
+                        "ANO": ano,
+                        "QUINZENA": quinzena,
+                        "MES": mes,
+                        "OPERACAO": operacao,
+                        "TIPO_VEICUL": veiculo,
+                        "QUANTIDADE": quantidade,
+                        "OBSERVACAO": observacoes,
+                        "DATA_SUBMI": datetime.now().strftime("%Y-%m-%d"),
+                        "STATUS": "Pendente",
+                        "APROVADOR": "",
+                        "DATA_DECIS": None,
+                        "MOTIVO_REJ": ""
+                    }).execute()
+            st.success("✅ Registro submetido para aprovação!")
 
 # ---------------- Aba Relatório ----------------
 if "Relatório" in tab_dict:
     with tab_dict["Relatório"]:
         st.header("📊 Relatório e Exportação")
 
-        if os.path.exists(arquivo_fluxo):
-            df = pd.read_excel(arquivo_fluxo)
-            df = df[df["Status"] == "Aprovado"]
+        data = supabase.table("registros").select("*").eq("STATUS", "Aprovado").execute()
+        df = pd.DataFrame(data.data)
 
+        if not df.empty:
             if razao_permitida != "TODOS":
-                df = df[df["Razão Social"] == razao_permitida]
+                df = df[df["RAZAO_SOCI"] == razao_permitida]
 
             if razao_permitida == "TODOS":
                 filtro_razao = st.selectbox("Filtrar por Razão Social", ["Todas"] + razoes_sociais)
                 if filtro_razao != "Todas":
-                    df = df[df["Razão Social"] == filtro_razao]
+                    df = df[df["RAZAO_SOCI"] == filtro_razao]
 
             filtro_quinzena = st.selectbox("Filtrar por Quinzena", ["Todas", "1ª Quinzena", "2ª Quinzena"])
             filtro_mes = st.selectbox("Filtrar por Mês", ["Todos"] + [
@@ -172,9 +159,9 @@ if "Relatório" in tab_dict:
             ])
 
             if filtro_quinzena != "Todas":
-                df = df[df["Quinzena"] == filtro_quinzena]
+                df = df[df["QUINZENA"] == filtro_quinzena]
             if filtro_mes != "Todos":
-                df = df[df["Mês"] == filtro_mes]
+                df = df[df["MES"] == filtro_mes]
 
             st.dataframe(df)
 
@@ -190,63 +177,7 @@ if "Relatório" in tab_dict:
         else:
             st.warning("⚠️ Nenhum registro aprovado encontrado.")
 
-# ---------------- Aba Fluxo de Aprovação ----------------
-if "Fluxo de Aprovação" in tab_dict:
-    with tab_dict["Fluxo de Aprovação"]:
-        st.header("🔎 Fluxo de Aprovação")
 
-        if os.path.exists(arquivo_fluxo):
-            df = pd.read_excel(arquivo_fluxo)
-
-            if razao_permitida != "TODOS":
-                df = df[df["Razão Social"] == razao_permitida]
-
-            # 🔽 Filtro de status
-            filtro_status = st.selectbox("Filtrar por Status", ["Todos", "Aprovado", "Rejeitado", "Pendente"])
-            if filtro_status != "Todos":
-                df = df[df["Status"] == filtro_status]
-
-            st.dataframe(df)
-        else:
-            st.info("Nenhum registro encontrado no fluxo.")
-
-# ---------------- Aba Aprovação ----------------
-if "Aprovação" in tab_dict:
-    with tab_dict["Aprovação"]:
-        st.header("✅ Aprovação de Registros")
-
-        if os.path.exists(arquivo_fluxo):
-            df_fluxo = pd.read_excel(arquivo_fluxo)
-            df_pendentes = df_fluxo[df_fluxo["Status"] == "Pendente"]
-
-            if not df_pendentes.empty:
-                for i, row in df_pendentes.iterrows():
-                    with st.expander(f"{row['Razão Social']} - {row['Operação']} - {row['Mês']} {row['Ano']}"):
-                        st.write(row)
-
-                        motivo = st.text_input("Motivo da rejeição (se rejeitar)", key=f"motivo_{i}")
-                        col1, col2 = st.columns(2)
-
-                        if col1.button("✔️ Aprovar", key=f"aprovar_{i}"):
-                            df_fluxo.loc[i, "Status"] = "Aprovado"
-                            df_fluxo.loc[i, "Aprovador"] = usuario_logado
-                            df_fluxo.loc[i, "Data da Decisão"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-                            df_fluxo.to_excel(arquivo_fluxo, index=False)
-                            st.success("Registro aprovado!")
-                            st.rerun()
-
-                        if col2.button("❌ Rejeitar", key=f"rejeitar_{i}"):
-                            df_fluxo.loc[i, "Status"] = "Rejeitado"
-                            df_fluxo.loc[i, "Aprovador"] = usuario_logado
-                            df_fluxo.loc[i, "Data da Decisão"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-                            df_fluxo.loc[i, "Motivo Rejeição"] = motivo
-                            df_fluxo.to_excel(arquivo_fluxo, index=False)
-                            st.warning("Registro rejeitado!")
-                            st.rerun()
-            else:
-                st.info("Nenhum registro pendente.")
-        else:
-            st.info("Nenhum registro pendente.")
 
 
 
