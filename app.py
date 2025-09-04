@@ -66,21 +66,21 @@ razoes_sociais = [
 tipos_veiculos = ["AJUDANTE", "MOTO", "CARRO UTILITARIO", "FIORINO", "VAN", "VUC"]
 operacoes = ["SHEIN", "SHEIN - D2D","TIKTOK", "NUVEMSHOP", "BENNET JEANS"]
 
-# ---------------- MAPA DE COLUNAS (SEM ACENTOS) ----------------
+# ---------------- MAPA DE COLUNAS ----------------
 colunas_map = {
-    "Razão Social": "Razao_Social",
+    "Razao Social": "Razao_Social",
     "Ano": "Ano",
     "Quinzena": "Quinzena",
     "Mes": "Mes",
-    "Operação": "Operacao",
-    "Tipo de Veículo": "Tipo_de_Veiculo",
+    "Operacao": "Operacao",
+    "Tipo de Veiculo": "Tipo_de_Veiculo",
     "Quantidade": "Quantidade",
-    "Observações": "Observacoes",
-    "Data de Submissão": "Data_de_Submissao",
+    "Observacoes": "Observacoes",
+    "Data de Submissao": "Data_de_Submissao",
     "Status": "Status",
     "Aprovador": "Aprovador",
     "Data da Decisao": "Data_da_Decisao",
-    "Motivo Rejeição": "Motivo_Rejeicao"
+    "Motivo Rejeicao": "Motivo_Rejeicao"
 }
 
 # ---------------- ABAS ----------------
@@ -94,7 +94,7 @@ usuarios_aprovacao_somente = {
 
 if usuario_logado in usuarios_aprovacao_somente:
     abas = ["Aprovacao"]
-elif usuarios[usuario_logado]["razao"] == "TODOS":
+elif razao_permitida == "TODOS":
     abas = ["Registro", "Relatorio", "Fluxo de Aprovacao", "Aprovacao"]
 else:
     abas = ["Registro", "Relatorio", "Fluxo de Aprovacao"]
@@ -118,7 +118,7 @@ if "Registro" in tab_dict:
             "Janeiro","Fevereiro","Março","Abril","Maio","Junho",
             "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"
         ])
-        operacao = st.selectbox("Operação", operacoes)
+        operacao = st.selectbox("Operacao", operacoes)
 
         quantidades = {}
         st.subheader("Quantidade de Veículos")
@@ -127,27 +127,27 @@ if "Registro" in tab_dict:
             col1.write(veiculo)
             quantidades[veiculo] = col2.number_input(f"Qtd {veiculo}", min_value=0, step=1, key=f"{veiculo}_qtd")
 
-        observacoes = st.text_area("Observações (opcional)")
+        observacoes = st.text_area("Observacoes (opcional)")
 
-        if st.button("Submeter para aprovação"):
+        if st.button("Submeter para aprovacao"):
             registros = []
             for veiculo, quantidade in quantidades.items():
                 if quantidade > 0:
                     registro = {
-                        colunas_map["Razão Social"]: razao_social,
+                        colunas_map["Razao Social"]: razao_social,
                         colunas_map["Ano"]: int(ano),
                         colunas_map["Quinzena"]: 1 if quinzena == "1ª Quinzena" else 2,
                         colunas_map["Mes"]: ["Janeiro","Fevereiro","Março","Abril","Maio","Junho",
                                              "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"].index(mes) + 1,
-                        colunas_map["Operação"]: operacao,
-                        colunas_map["Tipo_de_Veiculo"]: veiculo,
+                        colunas_map["Operacao"]: operacao,
+                        colunas_map["Tipo de Veiculo"]: veiculo,
                         colunas_map["Quantidade"]: int(quantidade),
                         colunas_map["Observacoes"]: observacoes,
-                        colunas_map["Data_de_Submissao"]: datetime.now(),
+                        colunas_map["Data de Submissao"]: datetime.now().isoformat(),
                         colunas_map["Status"]: "Pendente",
                         colunas_map["Aprovador"]: None,
-                        colunas_map["Data_da_Decisao"]: None,
-                        colunas_map["Motivo_Rejeicao"]: None
+                        colunas_map["Data da Decisao"]: None,
+                        colunas_map["Motivo Rejeicao"]: None
                     }
                     registros.append(registro)
 
@@ -158,54 +158,60 @@ if "Registro" in tab_dict:
                         st.error(f"Erro ao enviar registro: {response.error.message}")
                         break
                 else:
-                    st.success("✅ Registro submetido para aprovação no banco!")
+                    st.success("✅ Registro submetido para aprovacao no banco!")
                     st.dataframe(pd.DataFrame(registros))
             else:
                 st.warning("⚠️ Nenhuma quantidade informada.")
 
-# ---------------- Aba Aprovação ----------------
-if "Aprovação" in tab_dict:
-    with tab_dict["Aprovação"]:
-        st.header("✅ Aprovação de Registros")
-        data = supabase.table("registros_diarios").select("*").execute().data
-        if data:
-            df_fluxo = pd.DataFrame(data)
-            df_pendentes = df_fluxo[df_fluxo["Status"] == "Pendente"]
-            if not df_pendentes.empty:
-                for i, row in df_pendentes.iterrows():
-                    with st.expander(f"{row['Razao_Social']} - {row['Operacao']} - {row['Mes']} {row['Ano']}"):
-                        st.write(row)
-                        motivo = st.text_input("Motivo da rejeição (se rejeitar)", key=f"motivo_{i}")
-                        col1, col2 = st.columns(2)
+# ---------------- Aba Aprovacao ----------------
+if "Aprovacao" in tab_dict:
+    with tab_dict["Aprovacao"]:
+        st.header("✅ Aprovacao de Registros")
+        result = supabase.table("registros_diarios").select("*").execute()
+        if result.error:
+            st.error(f"Erro ao buscar registros: {result.error.message}")
+        else:
+            data = result.data
+            if data:
+                df_fluxo = pd.DataFrame(data)
+                df_pendentes = df_fluxo[df_fluxo["Status"] == "Pendente"]
+                if not df_pendentes.empty:
+                    for i, row in df_pendentes.iterrows():
+                        with st.expander(f"{row['Razao_Social']} - {row['Operacao']} - {row['Mes']} {row['Ano']}"):
+                            st.write(row)
+                            motivo = st.text_input("Motivo da rejeicao (se rejeitar)", key=f"motivo_{i}")
+                            col1, col2 = st.columns(2)
 
-                        if col1.button("✔️ Aprovar", key=f"aprovar_{i}"):
-                            response = supabase.table("registros_diarios").update({
-                                "Status": "Aprovado",
-                                "Aprovador": usuario_logado,
-                                "Data_da_Decisao": datetime.now()
-                            }).eq("id", row["id"]).execute()
-                            if response.error:
-                                st.error(f"Erro ao aprovar registro: {response.error.message}")
-                            else:
-                                st.success("Registro aprovado!")
-                                st.rerun()
+                            if col1.button("✔️ Aprovar", key=f"aprovar_{i}"):
+                                resp = supabase.table("registros_diarios").update({
+                                    "Status": "Aprovado",
+                                    "Aprovador": usuario_logado,
+                                    "Data_da_Decisao": datetime.now().isoformat()
+                                }).eq("id", row["id"]).execute()
+                                if resp.error:
+                                    st.error(f"Erro ao aprovar registro: {resp.error.message}")
+                                else:
+                                    st.success("Registro aprovado!")
+                                    st.rerun()
 
-                        if col2.button("❌ Rejeitar", key=f"rejeitar_{i}"):
-                            response = supabase.table("registros_diarios").update({
-                                "Status": "Rejeitado",
-                                "Aprovador": usuario_logado,
-                                "Data_da_Decisao": datetime.now(),
-                                "Motivo_Rejeicao": motivo
-                            }).eq("id", row["id"]).execute()
-                            if response.error:
-                                st.error(f"Erro ao rejeitar registro: {response.error.message}")
-                            else:
-                                st.warning("Registro rejeitado!")
-                                st.rerun()
+                            if col2.button("❌ Rejeitar", key=f"rejeitar_{i}"):
+                                resp = supabase.table("registros_diarios").update({
+                                    "Status": "Rejeitado",
+                                    "Aprovador": usuario_logado,
+                                    "Data_da_Decisao": datetime.now().isoformat(),
+                                    "Motivo_Rejeicao": motivo
+                                }).eq("id", row["id"]).execute()
+                                if resp.error:
+                                    st.error(f"Erro ao rejeitar registro: {resp.error.message}")
+                                else:
+                                    st.warning("Registro rejeitado!")
+                                    st.rerun()
+                else:
+                    st.info("Nenhum registro pendente.")
             else:
                 st.info("Nenhum registro pendente.")
-        else:
-            st.info("Nenhum registro pendente.")
+
+
 
 
 
