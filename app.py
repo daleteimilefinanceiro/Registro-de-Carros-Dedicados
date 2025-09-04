@@ -71,7 +71,7 @@ colunas_map = {
     "Razão Social": "Razao_Social",
     "Ano": "Ano",
     "Quinzena": "Quinzena",
-    "Mês": "Mes",
+    "Mes": "Mes",
     "Operação": "Operacao",
     "Tipo de Veículo": "Tipo_de_Veiculo",
     "Quantidade": "Quantidade",
@@ -206,6 +206,7 @@ if "Aprovação" in tab_dict:
                 st.info("Nenhum registro pendente.")
         else:
             st.info("Nenhum registro pendente.")
+
 
 
 
