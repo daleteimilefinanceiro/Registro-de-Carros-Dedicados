@@ -187,45 +187,23 @@ if "Aprovação" in tab_dict:
             df_fluxo = pd.DataFrame(data)
             df_pendentes = df_fluxo[df_fluxo["Status"] == "Pendente"]
 
+            # Flag para saber se precisa rerun
+            atualizou = False
+
             if not df_pendentes.empty:
                 for i, row in df_pendentes.iterrows():
-                    with st.expander(f"{row['Razao_Social']} - {row['Operacao']} - {row['Mes']} {row['Ano']}"):
-                        st.write(row)
-                        motivo = st.text_input("Motivo da rejeição (se rejeitar)", key=f"motivo_{i}")
-                        col1, col2 = st.columns(2)
-
-                        # Aprovar registro
-                        if col1.button("✔️ Aprovar", key=f"aprovar_{i}"):
-                            update_result = supabase.table("registros_diarios").update({
-                                "Status": "Aprovado",
-                                "Aprovador": usuario_logado,
-                                "Data_da_Decisao": datetime.now()
-                            }).eq("id", row["id"]).execute()
-
-                            if update_result.data:  # Se retornou dados, consideramos sucesso
-                                st.success("Registro aprovado!")
-                                st.experimental_rerun()
-                            else:
-                                st.error("Erro ao aprovar registro!")
-
-                        # Rejeitar registro
-                        if col2.button("❌ Rejeitar", key=f"rejeitar_{i}"):
-                            update_result = supabase.table("registros_diarios").update({
-                                "Status": "Rejeitado",
-                                "Aprovador": usuario_logado,
-                                "Data_da_Decisao": datetime.now(),
-                                "Motivo_Rejeicao": motivo
-                            }).eq("id", row["id"]).execute()
-
-                            if update_result.data:
-                                st.warning("Registro rejeitado!")
-                                st.experimental_rerun()
-                            else:
-                                st.error("Erro ao rejeitar registro!")
+                    # Aqui entra o seu bloco novo com expander, botões e atualização
+                    ...
+                
             else:
                 st.info("Nenhum registro pendente.")
+
+            # Se houve atualização, rerun fora do loop
+            if atualizou:
+                st.experimental_rerun()
         else:
-            st.info("Nenhum registro pendente.")
+            st.info("Nenhum registro encontrado.")
+
             # ---------------- Aba Fluxo de Aprovação ----------------
 # ---------------- Aba Fluxo de Aprovação ----------------
 if "Fluxo de Aprovacao" in tab_dict:
@@ -336,6 +314,7 @@ if "Aprovacao" in tab_dict and usuario_logado in usuarios_aprovacao_somente:
                 st.info("Nenhum registro pendente para aprovação.")
         else:
             st.info("Nenhum registro pendente.")
+
 
 
 
