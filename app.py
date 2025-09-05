@@ -141,7 +141,7 @@ if "Registro" in tab_dict:
                         "Operacao": operacao,
                         "Tipo_de_Veiculo": veiculo,
                         "Quantidade": int(quantidade),
-                        "Observacoes": observacoes if observacoes else None,
+                        "Observacoes": observacoes if observacoes else "",
                         "Data_de_Submissao": datetime.now().isoformat(),
                         "Status": "Pendente",
                         "Aprovador": "Pendente",
@@ -262,6 +262,7 @@ if "Relatorio" in tab_dict:
                     st.info("Nenhum registro encontrado para este filtro.")
         else:
             st.info("Nenhum registro cadastrado.")
+
 
 
 
