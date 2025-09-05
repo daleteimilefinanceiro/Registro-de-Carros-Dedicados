@@ -133,11 +133,11 @@ if "Registro" in tab_dict:
 
             for veiculo, quantidade in quantidades.items():
                 if quantidade > 0:
-                    registros = {
+                    registro = {
                         "Razao_Social": razao_social,
                         "Ano": int(ano),
-                        "Quinzena": 1 if quinzena == "1ª Quinzena" else 2,
-                        "Mes": ["Janeiro","Fevereiro","Março","Abril","Maio","Junho", "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"].index(mes) + 1,
+                        "Quinzena": quinzena,
+                        "Mes": mes,
                         "Operacao": operacao,
                         "Tipo_de_Veiculo": veiculo,
                         "Quantidade": int(quantidade),
@@ -153,8 +153,8 @@ if "Registro" in tab_dict:
             if registros:
                 try:
                     response = supabase.table("registros_diarios").insert(registros).execute()
-                    if hasattr(resp, "error") and resp.error:
-                        st.error(f"Erro ao enviar registro: {resp.error.message}")
+                    if hasattr(response, "error") and response.error:
+                        st.error(f"Erro ao enviar registro: {response.error.message}")
                     else:
                         st.success("✅ Registro submetido para aprovação!")
                         st.dataframe(pd.DataFrame(registros))
@@ -162,6 +162,7 @@ if "Registro" in tab_dict:
                     st.error(f"Erro ao enviar para o Supabase: {e}")
             else:
                 st.warning("⚠️ Nenhuma quantidade informada.")
+
 
 # ---------------- Aba Fluxo de Aprovação ----------------
 if "Fluxo de Aprovacao" in tab_dict:
@@ -261,6 +262,7 @@ if "Relatorio" in tab_dict:
                     st.info("Nenhum registro encontrado para este filtro.")
         else:
             st.info("Nenhum registro cadastrado.")
+
 
 
 
