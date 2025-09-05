@@ -130,36 +130,33 @@ if "Registro" in tab_dict:
         # Botão de submissão
         if st.button("Submeter para aprovação"):
             registros = []
-            agora_iso = datetime.now().isoformat()
-            agora_sql = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
             for veiculo, quantidade in quantidades.items():
                 if quantidade > 0:
-                    registros.append({
+                    registros = {
                         "Razao_Social": razao_social,
                         "Ano": int(ano),
-                        "Quinzena": quinzena,
-                        "Mes": mes,
+                        "Quinzena": 1 if quinzena == "1ª Quinzena" else 2,
+                        "Mes": ["Janeiro","Fevereiro","Março","Abril","Maio","Junho", "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"].index(mes) + 1,
                         "Operacao": operacao,
                         "Tipo_de_Veiculo": veiculo,
                         "Quantidade": int(quantidade),
                         "Observacoes": observacoes if observacoes else None,
-                        "Data_de_Submissao": agora_iso,
+                        "Data_de_Submissao": datetime.now().isoformat(),
                         "Status": "Pendente",
-                        # Se suas colunas abaixo são NOT NULL no banco, mantenha "Pendente"/data.
-                        # Se já permitem NULL, você pode trocar por None.
                         "Aprovador": "Pendente",
-                        "Data_da_Decisao": agora_sql,
-                        "Motivo_Rejeicao": "Pendente",
-                    })
+                        "Data_da_Decisao": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                        "Motivo_Rejeicao": "Pendente"
+                    }
+                    registros.append(registro)
 
             if registros:
                 try:
-                    resp = supabase.table("registros_diarios").insert(registros).execute()
+                    response = supabase.table("registros_diarios").insert(registros).execute()
                     if hasattr(resp, "error") and resp.error:
                         st.error(f"Erro ao enviar registro: {resp.error.message}")
                     else:
-                        st.success("✅ Registro submetido para aprovação no banco!")
+                        st.success("✅ Registro submetido para aprovação!")
                         st.dataframe(pd.DataFrame(registros))
                 except Exception as e:
                     st.error(f"Erro ao enviar para o Supabase: {e}")
@@ -264,6 +261,7 @@ if "Relatorio" in tab_dict:
                     st.info("Nenhum registro encontrado para este filtro.")
         else:
             st.info("Nenhum registro cadastrado.")
+
 
 
 
