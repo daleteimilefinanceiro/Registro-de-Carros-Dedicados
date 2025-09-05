@@ -278,6 +278,10 @@ if "Aprovacao" in tab_dict and usuario_logado in usuarios_aprovacao_somente:
             df_pendentes = pd.DataFrame(data)
 
             if not df_pendentes.empty:
+                # Flag de controle
+                if "acao_aprovacao" not in st.session_state:
+                    st.session_state["acao_aprovacao"] = None
+
                 for i, row in df_pendentes.iterrows():
                     with st.expander(f"{row['Razao_Social']} - {row['Operacao']} - {row['Mes']}/{row['Ano']} - {row['Tipo_de_Veiculo']}"):
                         st.write(row)
@@ -287,40 +291,42 @@ if "Aprovacao" in tab_dict and usuario_logado in usuarios_aprovacao_somente:
 
                         # Botão Aprovar
                         if col1.button("✔️ Aprovar", key=f"aprovar_{i}"):
-                            update_result = supabase.table("registros_diarios").update({
-                                "Status": "Aprovado",
-                                "Aprovador": usuario_logado,
-                                "Data_da_Decisao": datetime.now().isoformat(),
-                                "Motivo_Rejeicao": "N/A"
-                            }).eq("id", row["id"]).execute()
-
-                            if hasattr(update_result, "error") and update_result.error:
-                                st.error(f"Erro ao aprovar: {update_result.error.message}")
-                            else:
-                                st.success("Registro aprovado!")
-                                st.experimental_rerun()
+                            st.session_state["acao_aprovacao"] = ("Aprovado", row["id"], "N/A")
 
                         # Botão Rejeitar
                         if col2.button("❌ Rejeitar", key=f"rejeitar_{i}"):
                             if not motivo:
                                 st.warning("Digite o motivo da rejeição antes de rejeitar!")
                             else:
-                                update_result = supabase.table("registros_diarios").update({
-                                    "Status": "Rejeitado",
-                                    "Aprovador": usuario_logado,
-                                    "Data_da_Decisao": datetime.now().isoformat(),
-                                    "Motivo_Rejeicao": motivo
-                                }).eq("id", row["id"]).execute()
+                                st.session_state["acao_aprovacao"] = ("Rejeitado", row["id"], motivo)
 
-                                if hasattr(update_result, "error") and update_result.error:
-                                    st.error(f"Erro ao rejeitar: {update_result.error.message}")
-                                else:
-                                    st.warning("Registro rejeitado!")
-                                    st.experimental_rerun()
+                # Processa ação fora do loop
+                if st.session_state["acao_aprovacao"]:
+                    status, registro_id, motivo_texto = st.session_state["acao_aprovacao"]
+
+                    update_result = supabase.table("registros_diarios").update({
+                        "Status": status,
+                        "Aprovador": usuario_logado,
+                        "Data_da_Decisao": datetime.now().isoformat(),
+                        "Motivo_Rejeicao": motivo_texto
+                    }).eq("id", registro_id).execute()
+
+                    if hasattr(update_result, "error") and update_result.error:
+                        st.error(f"Erro ao atualizar registro: {update_result.error.message}")
+                    else:
+                        if status == "Aprovado":
+                            st.success("Registro aprovado!")
+                        else:
+                            st.warning("Registro rejeitado!")
+
+                        st.session_state["acao_aprovacao"] = None
+                        st.rerun()  # ✅ substitui o experimental_rerun
+
             else:
                 st.info("Nenhum registro pendente para aprovação.")
         else:
             st.info("Nenhum registro pendente.")
+
 
 # ---------------- Aba Relatorio ----------------
 if "Relatorio" in tab_dict:
@@ -373,6 +379,7 @@ if "Relatorio" in tab_dict:
                 )
         else:
             st.info("Nenhum registro encontrado.")
+
 
 
 
