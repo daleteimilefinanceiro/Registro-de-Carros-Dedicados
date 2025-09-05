@@ -254,13 +254,28 @@ if "Fluxo de Aprovacao" in tab_dict:
                 df_filtrado_excel["Data_de_Submissao"] = pd.to_datetime(df_filtrado_excel["Data_de_Submissao"])
                 df_filtrado_excel["Data_da_Decisao"] = pd.to_datetime(df_filtrado_excel["Data_da_Decisao"], errors='coerce')
 
-                csv = df_filtrado_excel.to_csv(index=False).encode("utf-8")
-                st.download_button(
-                    label="📥 Baixar relatório filtrado",
-                    data=csv,
-                    file_name=f"relatorio_{usuario_logado}.csv",
-                    mime="text/csv"
-                )
+               import io
+
+# ---------------- dentro da aba Fluxo de Aprovação ----------------
+if not df_filtrado.empty:
+    st.dataframe(df_filtrado)
+
+    # BOTÃO PARA BAIXAR RELATÓRIO EM EXCEL
+    df_filtrado_excel = df_filtrado.copy()
+    df_filtrado_excel["Data_de_Submissao"] = pd.to_datetime(df_filtrado_excel["Data_de_Submissao"])
+    df_filtrado_excel["Data_da_Decisao"] = pd.to_datetime(df_filtrado_excel["Data_da_Decisao"], errors='coerce')
+
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine="openpyxl") as writer:
+        df_filtrado_excel.to_excel(writer, index=False, sheet_name="Relatorio")
+    excel_data = output.getvalue()
+
+    st.download_button(
+        label="📥 Baixar relatório filtrado (Excel)",
+        data=excel_data,
+        file_name=f"relatorio_{usuario_logado}.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
             else:
                 st.info("Nenhum registro encontrado para este filtro.")
         else:
@@ -369,16 +384,25 @@ if "Relatorio" in tab_dict:
                 # Exibe tabela
                 st.dataframe(df_aprovados.sort_values(["Ano","Mes","Quinzena","Razao_Social"]))
 
-                # Botão para baixar CSV
-                csv = df_aprovados.to_csv(index=False).encode("utf-8")
-                st.download_button(
-                    label="📥 Baixar CSV",
-                    data=csv,
-                    file_name="relatorio_registros_aprovados.csv",
-                    mime="text/csv"
-                )
+               # ---------------- dentro da aba Relatorio ----------------
+if not df_aprovados.empty:
+    st.dataframe(df_aprovados.sort_values(["Ano","Mes","Quinzena","Razao_Social"]))
+
+    # Botão para baixar em Excel
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine="openpyxl") as writer:
+        df_aprovados.to_excel(writer, index=False, sheet_name="Aprovados")
+    excel_data = output.getvalue()
+
+    st.download_button(
+        label="📥 Baixar Excel",
+        data=excel_data,
+        file_name="relatorio_registros_aprovados.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
         else:
             st.info("Nenhum registro encontrado.")
+
 
 
 
