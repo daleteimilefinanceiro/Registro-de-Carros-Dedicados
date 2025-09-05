@@ -212,6 +212,66 @@ if "Fluxo de Aprovacao" in tab_dict:
         else:
             st.info("Nenhum registro cadastrado.")
 
+# ---------------- Aba Aprovação ----------------
+if "Aprovacao" in tab_dict and usuario_logado in usuarios_aprovacao_somente:
+    with tab_dict["Aprovacao"]:
+        st.header("✅ Aprovação de Registros")
+
+        # Pega todos os registros pendentes
+        result = supabase.table("registros_diarios").select("*").eq("Status", "Pendente").execute()
+        data = result.data
+
+        if data:
+            df_pendentes = pd.DataFrame(data)
+
+            if not df_pendentes.empty:
+                # Flag de controle
+                if "acao_aprovacao" not in st.session_state:
+                    st.session_state["acao_aprovacao"] = None
+
+                for i, row in df_pendentes.iterrows():
+                    with st.expander(f"{row['Razao_Social']} - {row['Operacao']} - {row['Mes']}/{row['Ano']} - {row['Tipo_de_Veiculo']}"):
+                        st.write(row)
+                        motivo = st.text_input("Motivo da rejeição (se rejeitar)", key=f"motivo_{i}")
+                        col1, col2 = st.columns(2)
+
+                        # Botão Aprovar
+                        if col1.button("✔️ Aprovar", key=f"aprovar_{i}"):
+                            st.session_state["acao_aprovacao"] = ("Aprovado", row["id"], "N/A")
+
+                        # Botão Rejeitar
+                        if col2.button("❌ Rejeitar", key=f"rejeitar_{i}"):
+                            if not motivo:
+                                st.warning("Digite o motivo da rejeição antes de rejeitar!")
+                            else:
+                                st.session_state["acao_aprovacao"] = ("Rejeitado", row["id"], motivo)
+
+                # Processa ação fora do loop
+                if st.session_state["acao_aprovacao"]:
+                    status, registro_id, motivo_texto = st.session_state["acao_aprovacao"]
+                    update_result = supabase.table("registros_diarios").update({
+                        "Status": status,
+                        "Aprovador": usuario_logado,
+                        "Data_da_Decisao": datetime.now().isoformat(),
+                        "Motivo_Rejeicao": motivo_texto
+                    }).eq("id", registro_id).execute()
+
+                    if hasattr(update_result, "error") and update_result.error:
+                        st.error(f"Erro ao atualizar registro: {update_result.error.message}")
+                    else:
+                        if status == "Aprovado":
+                            st.success("Registro aprovado!")
+                        else:
+                            st.warning("Registro rejeitado!")
+
+                    st.session_state["acao_aprovacao"] = None
+                    st.rerun()  # ✅ substitui o experimental_rerun
+            else:
+                st.info("Nenhum registro pendente para aprovação.")
+        else:
+            st.info("Nenhum registro pendente.")
+
+
 # ---------------- Aba Relatorio ----------------
 if "Relatorio" in tab_dict:
     with tab_dict["Relatorio"]:
@@ -262,6 +322,7 @@ if "Relatorio" in tab_dict:
                     st.info("Nenhum registro encontrado para este filtro.")
         else:
             st.info("Nenhum registro cadastrado.")
+
 
 
 
