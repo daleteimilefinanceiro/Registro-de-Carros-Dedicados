@@ -86,6 +86,86 @@ else:
 abas_objs = st.tabs(abas)
 tab_dict = {nome: abas_objs[i] for i, nome in enumerate(abas)}
 
+# ---------------- Aba Registro ----------------
+if "Registro" in tab_dict:
+    with tab_dict["Registro"]:
+        st.header("📌 Registro de Veículos")
+
+        # Razão Social
+        if razao_permitida != "TODOS":
+            razao_social = razao_permitida
+            st.info(f"🔒 Você só pode registrar para: **{razao_social}**")
+        else:
+            razao_social = st.selectbox("Razão Social", razoes_sociais)
+
+        # Ano, Quinzena e Mês
+        ano = st.number_input("Ano", min_value=2000, max_value=2100, step=1)
+
+        quinzena_label = st.selectbox("Quinzena", ["1ª Quinzena", "2ª Quinzena"])
+        quinzena = 1 if quinzena_label == "1ª Quinzena" else 2
+
+        meses_labels = [
+            "Janeiro","Fevereiro","Março","Abril","Maio","Junho",
+            "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"
+        ]
+        mes_label = st.selectbox("Mês", meses_labels)
+        mes = meses_labels.index(mes_label) + 1
+
+        # Operação
+        operacao = st.selectbox("Operação", operacoes)
+
+        # Quantidade de veículos
+        st.subheader("Quantidade de Veículos")
+        quantidades = {}
+        for veiculo in tipos_veiculos:
+            col1, col2 = st.columns([3, 1])
+            col1.write(veiculo)
+            quantidades[veiculo] = col2.number_input(
+                f"Qtd {veiculo}", min_value=0, step=1, key=f"{veiculo}_qtd"
+            )
+
+        # Observações
+        observacoes = st.text_area("Observações (opcional)")
+
+        # Botão de submissão
+        if st.button("Submeter para aprovação"):
+            registros = []
+            agora_iso = datetime.now().isoformat()
+            agora_sql = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+            for veiculo, quantidade in quantidades.items():
+                if quantidade > 0:
+                    registros.append({
+                        "Razao_Social": razao_social,
+                        "Ano": int(ano),
+                        "Quinzena": quinzena,
+                        "Mes": mes,
+                        "Operacao": operacao,
+                        "Tipo_de_Veiculo": veiculo,
+                        "Quantidade": int(quantidade),
+                        "Observacoes": observacoes if observacoes else None,
+                        "Data_de_Submissao": agora_iso,
+                        "Status": "Pendente",
+                        # Se suas colunas abaixo são NOT NULL no banco, mantenha "Pendente"/data.
+                        # Se já permitem NULL, você pode trocar por None.
+                        "Aprovador": "Pendente",
+                        "Data_da_Decisao": agora_sql,
+                        "Motivo_Rejeicao": "Pendente",
+                    })
+
+            if registros:
+                try:
+                    resp = supabase.table("registros_diarios").insert(registros).execute()
+                    if hasattr(resp, "error") and resp.error:
+                        st.error(f"Erro ao enviar registro: {resp.error.message}")
+                    else:
+                        st.success("✅ Registro submetido para aprovação no banco!")
+                        st.dataframe(pd.DataFrame(registros))
+                except Exception as e:
+                    st.error(f"Erro ao enviar para o Supabase: {e}")
+            else:
+                st.warning("⚠️ Nenhuma quantidade informada.")
+
 # ---------------- Aba Fluxo de Aprovação ----------------
 if "Fluxo de Aprovacao" in tab_dict:
     with tab_dict["Fluxo de Aprovacao"]:
@@ -184,6 +264,7 @@ if "Relatorio" in tab_dict:
                     st.info("Nenhum registro encontrado para este filtro.")
         else:
             st.info("Nenhum registro cadastrado.")
+
 
 
 
