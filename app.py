@@ -22,7 +22,8 @@ usuarios = {
     "daniela.conceicao": {"senha": "DC2025!", "razao": "TODOS"},
     "paula.lacerda": {"senha": "PL2025!", "razao": "TODOS"},
     "guilherme.barbosa": {"senha": "GB2025!", "razao": "TODOS"},
-    "rafael.reis": {"senha": "RR2025!", "razao": "TODOS"}
+    "rafael.reis": {"senha": "RR2025!", "razao": "TODOS"},
+    "paula.soares": {"senha": "PS2025!", "razao": "TODOS"}
 }
 
 if "usuario" not in st.session_state:
@@ -74,6 +75,7 @@ usuarios_aprovacao_somente = {
     "paula.lacerda",
     "guilherme.barbosa",
     "rafael.reis",
+    "paula.soares",
 }
 
 if usuario_logado in usuarios_aprovacao_somente:
@@ -322,6 +324,7 @@ if "Relatorio" in tab_dict:
                     st.info("Nenhum registro encontrado para este filtro.")
         else:
             st.info("Nenhum registro cadastrado.")
+
 
 
 
