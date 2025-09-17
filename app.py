@@ -18,6 +18,7 @@ usuarios = {
     "SRM2500123": {"senha": "ba7V1sK1fzYAgIGy", "razao": "2AR TRANSPORTES LTDA"},
     "SRM2501082": {"senha": "TbrTNBmm3E2WDi7y", "razao": "NEW EXPRESS BN LTDA."},
     "SRM2500909": {"senha": "sfgzEwAggNPsu43J", "razao": "GETLOG TRANSPORTES LTDA"},
+    "SRM2404167": {"senha": "bcNL6gY37UAKBG62", "razao": "WF FINGER TRANSPORTE E LOGISTICA LTDA"},
     "janaina.ferreira": {"senha": "JF2025!", "razao": "TODOS"},
     "daniela.conceicao": {"senha": "DC2025!", "razao": "TODOS"},
     "paula.lacerda": {"senha": "PL2025!", "razao": "TODOS"},
@@ -76,6 +77,7 @@ usuarios_aprovacao_somente = {
     "guilherme.barbosa",
     "rafael.reis",
     "paula.soares",
+    "financeadm",
 }
 
 if usuario_logado in usuarios_aprovacao_somente:
@@ -324,6 +326,7 @@ if "Relatorio" in tab_dict:
                     st.info("Nenhum registro encontrado para este filtro.")
         else:
             st.info("Nenhum registro cadastrado.")
+
 
 
 
