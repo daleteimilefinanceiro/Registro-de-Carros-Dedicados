@@ -67,7 +67,7 @@ razoes_sociais = [
 ]
 
 tipos_veiculos = ["AJUDANTE", "MOTO", "CARRO UTILITARIO", "FIORINO", "VAN", "VUC"]
-operacoes = ["SHEIN", "SHEIN - D2D","TIKTOK", "NUVEMSHOP", "BENNET JEANS"]
+operacoes = ["SHEIN", "SHEIN - D2D","TIKTOK", "NUVEMSHOP", "BENNET JEANS", "SHOPFOCO"]
 
 # ---------------- ABAS ----------------
 usuarios_aprovacao_somente = {
@@ -325,6 +325,7 @@ if "Relatorio" in tab_dict:
                     st.info("Nenhum registro encontrado para este filtro.")
         else:
             st.info("Nenhum registro cadastrado.")
+
 
 
 
