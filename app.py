@@ -77,7 +77,6 @@ usuarios_aprovacao_somente = {
     "guilherme.barbosa",
     "rafael.reis",
     "paula.soares",
-    "financeadm",
 }
 
 if usuario_logado in usuarios_aprovacao_somente:
@@ -326,6 +325,7 @@ if "Relatorio" in tab_dict:
                     st.info("Nenhum registro encontrado para este filtro.")
         else:
             st.info("Nenhum registro cadastrado.")
+
 
 
 
