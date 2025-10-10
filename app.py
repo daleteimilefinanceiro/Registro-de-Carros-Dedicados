@@ -117,6 +117,13 @@ if "Registro" in tab_dict:
         # Operação
         operacao = st.selectbox("Operação", operacoes)
 
+        # Data de Registro (para registros retroativos)
+        data_registro = st.date_input(
+            "Data de Registro",
+            value=datetime.now().date(),  # valor padrão: hoje
+            help="Escolha uma data retroativa se necessário"
+        )
+
         # Quantidade de veículos
         st.subheader("Quantidade de Veículos")
         quantidades = {}
@@ -132,6 +139,20 @@ if "Registro" in tab_dict:
 
         # Botão de submissão
         if st.button("Submeter para aprovação"):
+
+            # 1️⃣ Verifica se já existe registro para a mesma data e razão social (pendentes ou aprovados)
+            data_existe = supabase.table("registros_diarios") \
+                .select("*") \
+                .eq("Razao_Social", razao_social) \
+                .eq("Data_de_Registro", data_registro.isoformat()) \
+                .in_("Status", ["Pendente", "Aprovado"]) \
+                .execute()
+
+            if data_existe.data:  # se retornar algum registro
+                st.error("❌ Você já registrou o uso de veículos para essa data. Por favor, consulte o relatório.")
+                st.stop()  # interrompe a submissão
+
+            # 2️⃣ Se não houver duplicata, cria os registros
             registros = []
 
             for veiculo, quantidade in quantidades.items():
@@ -146,6 +167,7 @@ if "Registro" in tab_dict:
                         "Quantidade": int(quantidade),
                         "Observacoes": observacoes if observacoes else "",
                         "Data_de_Submissao": datetime.now().isoformat(),
+                        "Data_de_Registro": data_registro.isoformat(),  # apenas a data
                         "Status": "Pendente",
                         "Aprovador": "Pendente",
                         "Data_da_Decisao": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -325,6 +347,7 @@ if "Relatorio" in tab_dict:
                     st.info("Nenhum registro encontrado para este filtro.")
         else:
             st.info("Nenhum registro cadastrado.")
+
 
 
 
