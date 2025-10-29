@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
-import io
-from datetime import datetime
+from datetime import datetime, timedelta
 from supabase import create_client
 
 st.set_page_config(layout="wide")
@@ -45,7 +44,6 @@ if st.session_state["usuario"] is None:
 
 usuario_logado = st.session_state["usuario"]
 razao_permitida = usuarios[usuario_logado]["razao"]
-
 st.sidebar.success(f"👤 Usuário logado: {usuario_logado} ({razao_permitida})")
 if st.sidebar.button("Sair"):
     st.session_state["usuario"] = None
@@ -53,34 +51,33 @@ if st.sidebar.button("Sair"):
 
 # ---------------- CONFIGURAÇÃO DA APLICAÇÃO ----------------
 razoes_sociais = [
-    "2AR TRANSPORTES LTDA","ACC SILVA MINIMERCADO","ARMARINHOS MEGA VARIEDADES LTDA","ATHLANTA LOGISTICA LTDA",
-    "CESTLAVIE LTDA","CLIPE LOG LOGISTICA E TRANSPORTE DE CARGAS LTDA","DONALDO TRANSPORTES E LOGISTICA LTDA",
-    "DUDU BABY LTDA","EASY CARGO SOLUCOES","ETTORE BABY COMERCIO DE CONFECCOES LTDA","EVZEN LOGISTICA LTDA",
-    "FORTH TRANSPORTES LTDA","GABRIATO EMPORIO LTDA","GETLOG TRANSPORTES LTDA","GREEN LOG SERVICOS LOGISTICOS SUSTENTAVEIS E COMERCIO DE SUPRIMENTOS LTDA",
-    "GOOD ASSESSORIA POSTAL EMBALAGENS E LOGISTICA LTDA","HBK COMERCIO E ENVIOS DE ENCOMENDAS LTDA","H&L EXPRESSO LTDA",
-    "IMILE - ANDRE LUIZ DE SOUZA","IMILE - EMERSON DE SOUZA VELOSO","IMILE - GABRIELLA JOVINA MONTEIRO",
-    "IMILE - JOAO VICTOR CONCEICAO LOPES","IMILE - RODRIGO FREITAS CIRICO","KIM MAGAZINE LTDA","LOJAS MIUK LTDA",
-    "MOVIDOS MODA FASHION LTDA","NET CONECT CABOS E ACESSORIOS LTDA","NEW EXPRESS BN LTDA.","NOVALINK MT COMERCIAL LTDA",
-    "PREST SERVI APOIO AO E-COMMERCE LTDA","QR PHONE ASSISTENCIA TECNICA LTDA","RESENSERV-RESENDE SERVICOS LTDA",
-    "RF TRANSPORTES LTDA","RIVILOG LTDA","ROHNES TRANSPORTE E LOGISTICA EIRELI","TEC SERVICE TRANSPORTES LTDA",
+    "2AR TRANSPORTES LTDA","ACC SILVA MINIMERCADO","ARMARINHOS MEGA VARIEDADES LTDA",
+    "ATHLANTA LOGISTICA LTDA","CESTLAVIE LTDA","CLIPE LOG LOGISTICA E TRANSPORTE DE CARGAS LTDA",
+    "DONALDO TRANSPORTES E LOGISTICA LTDA","DUDU BABY LTDA","EASY CARGO SOLUCOES",
+    "ETTORE BABY COMERCIO DE CONFECCOES LTDA","EVZEN LOGISTICA LTDA","FORTH TRANSPORTES LTDA",
+    "GABRIATO EMPORIO LTDA","GETLOG TRANSPORTES LTDA","GREEN LOG SERVICOS LOGISTICOS SUSTENTAVEIS E COMERCIO DE SUPRIMENTOS LTDA",
+    "GOOD ASSESSORIA POSTAL EMBALAGENS E LOGISTICA LTDA","HBK COMERCIO E ENVIOS DE ENCOMENDAS LTDA",
+    "H&L EXPRESSO LTDA","IMILE - ANDRE LUIZ DE SOUZA","IMILE - EMERSON DE SOUZA VELOSO",
+    "IMILE - GABRIELLA JOVINA MONTEIRO","IMILE - JOAO VICTOR CONCEICAO LOPES",
+    "IMILE - RODRIGO FREITAS CIRICO","KIM MAGAZINE LTDA","LOJAS MIUK LTDA",
+    "MOVIDOS MODA FASHION LTDA","NET CONECT CABOS E ACESSORIOS LTDA","NEW EXPRESS BN LTDA.",
+    "NOVALINK MT COMERCIAL LTDA","PREST SERVI APOIO AO E-COMMERCE LTDA","QR PHONE ASSISTENCIA TECNICA LTDA",
+    "RESENSERV-RESENDE SERVICOS LTDA","RF TRANSPORTES LTDA","RIVILOG LTDA",
+    "ROHNES TRANSPORTE E LOGISTICA EIRELI","TEC SERVICE TRANSPORTES LTDA",
     "TEREZINHA APARECIDA PATEL SERVICOS DE LOGISTICA LTDA","WF FINGER TRANSPORTE E LOGISTICA LTDA"
 ]
 
-tipos_veiculos = ["AJUDANTE", "MOTO", "CARRO UTILITARIO", "FIORINO", "VAN", "VUC"]
-operacoes = ["SHEIN", "SHEIN - D2D","TIKTOK", "NUVEMSHOP", "BENNET JEANS", "SHOPFOCO"]
+tipos_veiculos = ["FIORINO", "VAN", "VUC", "CARRO UTILITARIO", "AJUDANTE", "MOTO"]
+operacoes = ["TIKTOK", "BENNET JEANS", "SHEIN", "NUVEMSHOP"]
 
-# ---------------- ABAS ----------------
+# ---------------- CONFIGURAÇÃO DAS ABAS ----------------
 usuarios_aprovacao_somente = {
-    "leticia.lima",
-    "daniela.conceicao",
-    "paula.lacerda",
-    "guilherme.barbosa",
-    "rafael.reis",
-    "paula.soares",
+    "leticia.lima", "daniela.conceicao", "paula.lacerda", "guilherme.barbosa",
+    "rafael.reis", "paula.soares",
 }
 
 if usuario_logado in usuarios_aprovacao_somente:
-    abas = ["Aprovacao"]
+    abas = ["Aprovacao", "Relatorio"]
 elif razao_permitida == "TODOS":
     abas = ["Registro", "Relatorio", "Fluxo de Aprovacao", "Aprovacao"]
 else:
@@ -89,264 +86,410 @@ else:
 abas_objs = st.tabs(abas)
 tab_dict = {nome: abas_objs[i] for i, nome in enumerate(abas)}
 
-# ---------------- Aba Registro ----------------
+# ---------------- Helpers Supabase ----------------
+def registros_existem_para(razao, data_oficial):
+    """Retorna True/False e lista de registros existentes (tenta colunas maiúsculas e camelcase)."""
+    # Tenta consulta nas duas possíveis convenções de colunas
+    try:
+        res = supabase.table("registro_veiculos_calendario").select("*")\
+            .eq("RAZAO_SOCIAL", razao).eq("DATA_OFICIAL", data_oficial).execute()
+        if res.data:
+            return True, res.data
+    except Exception:
+        pass
+    try:
+        res2 = supabase.table("registro_veiculos_calendario").select("*")\
+            .eq("Razao_Social", razao).eq("Data_Oficial", data_oficial).execute()
+        if res2.data:
+            return True, res2.data
+    except Exception:
+        pass
+    return False, []
+
+def inserir_registro_linhas(razao, data_oficial, quantidades_dict, operacao, usuario):
+    """Insere uma linha por modalidade (MODALIDADE) com QUANTIDADE correspondente.
+       Colunas em maiúsculo conforme solicitado. Define STATUS='Pendente' por padrão."""
+    data_de_registro = datetime.now().isoformat()
+    inserir = []
+    for modalidade, qtd in quantidades_dict.items():
+        # Se qtd == 0 pulamos para evitar linhas vazias (alterável)
+        if qtd is None:
+            qtd = 0
+        inserir.append({
+            "RAZAO_SOCIAL": razao,
+            "DATA_OFICIAL": data_oficial,
+            "DATA_DE_REGISTRO": data_de_registro,
+            "QUANTIDADE": int(qtd),
+            "MODALIDADE": modalidade,
+            "OPERACAO": operacao,
+            "APROVADOR": None,
+            "DATA_DA_APROVACAO": None,
+            "STATUS": "Pendente",
+            "MOTIVO_REJEICAO": None,
+            "USUARIO_REGISTRANTE": usuario
+        })
+    # Inserção em lote
+    supabase.table("registro_veiculos_calendario").insert(inserir).execute()
+
+# ---------------- ABA REGISTRO ----------------
 if "Registro" in tab_dict:
     with tab_dict["Registro"]:
-        st.header("📌 Registro de Veículos")
+        st.title("📅 CALENDÁRIO")
 
-        # Razão Social
-        if razao_permitida != "TODOS":
-            razao_social = razao_permitida
-            st.info(f"🔒 Você só pode registrar para: **{razao_social}**")
+        # ---------- Estado inicial do calendário e do formulário ----------
+        hoje = datetime.now()
+        # Inicializa ano/mes do calendário (chaves únicas e constantes)
+        if "cal_ano" not in st.session_state:
+            st.session_state["cal_ano"] = max(2025, min(hoje.year, 2030))
+        if "cal_mes" not in st.session_state:
+            st.session_state["cal_mes"] = hoje.month
+
+        if "data_selecionada" not in st.session_state:
+            st.session_state["data_selecionada"] = None
+        if "form_aberto" not in st.session_state:
+            st.session_state["form_aberto"] = False
+
+        # ---------- Cabeçalho com navegação de mês ----------
+        col_left, col_center, col_right = st.columns([1, 6, 1])
+        with col_left:
+            if st.button("⬅️", key="btn_prev_month"):
+                # volta um mês dentro do intervalo 2025-2030
+                ano = st.session_state["cal_ano"]
+                mes = st.session_state["cal_mes"]
+                prev = (datetime(ano, mes, 1) - timedelta(days=1))
+                if 2025 <= prev.year <= 2030:
+                    st.session_state["cal_ano"] = prev.year
+                    st.session_state["cal_mes"] = prev.month
+        with col_center:
+            mes_nome = datetime(st.session_state["cal_ano"], st.session_state["cal_mes"], 1).strftime("%B %Y")
+            st.markdown(f"### {mes_nome}")
+        with col_right:
+            if st.button("➡️", key="btn_next_month"):
+                ano = st.session_state["cal_ano"]
+                mes = st.session_state["cal_mes"]
+                # avança ao próximo mês (maneira segura)
+                next_month = (datetime(ano, mes, 28) + timedelta(days=4)).replace(day=1)
+                if 2025 <= next_month.year <= 2030:
+                    st.session_state["cal_ano"] = next_month.year
+                    st.session_state["cal_mes"] = next_month.month
+
+        # ---------- Geração dos dias do mês ----------
+        ano_atual = st.session_state["cal_ano"]
+        mes_atual = st.session_state["cal_mes"]
+        primeiro_dia = datetime(ano_atual, mes_atual, 1)
+        # calcula último dia do mês
+        if mes_atual == 12:
+            ultimo_dia = datetime(ano_atual, 12, 31)
         else:
-            razao_social = st.selectbox("Razão Social", razoes_sociais)
+            ultimo_dia = datetime(ano_atual, mes_atual + 1, 1) - timedelta(days=1)
+        dias_mes = pd.date_range(primeiro_dia, ultimo_dia)
 
-        # Ano, Quinzena e Mês
-        ano = st.number_input("Ano", min_value=2000, max_value=2100, step=1)
+        # ---------- Cabeçalho dias da semana ----------
+        dias_semana = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"]
+        cols = st.columns(7)
+        for i, dia in enumerate(dias_semana):
+            cols[i].markdown(f"**{dia}**", unsafe_allow_html=True)
 
-        quinzena_label = st.selectbox("Quinzena", ["1ª Quinzena", "2ª Quinzena"])
-        quinzena = 1 if quinzena_label == "1ª Quinzena" else 2
+        # ---------- Monta calendário em linhas de 7 ----------
+        calendario = []
+        linha = []
+        primeira_semana_vazia = (primeiro_dia.weekday() + 1) % 7
+        for _ in range(primeira_semana_vazia):
+            linha.append(" ")
+        for dia in dias_mes:
+            linha.append(f"{dia.day:02d}")
+            if len(linha) == 7:
+                calendario.append(linha)
+                linha = []
+        if linha:
+            while len(linha) < 7:
+                linha.append(" ")
+            calendario.append(linha)
 
-        meses_labels = [
-            "Janeiro","Fevereiro","Março","Abril","Maio","Junho",
-            "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"
-        ]
-        mes_label = st.selectbox("Mês", meses_labels)
-        mes = meses_labels.index(mes_label) + 1
+        # ---------- Exibe o calendário (botoes) ----------
+        for semana in calendario:
+            cols = st.columns(7)
+            for i, dia_label in enumerate(semana):
+                if dia_label.strip() == "":
+                    cols[i].write(" ")
+                    continue
+                dia_int = int(dia_label)
+                dia_str = f"{ano_atual}-{mes_atual:02d}-{dia_int:02d}"
 
-        # Operação
-        operacao = st.selectbox("Operação", operacoes)
-
-        # Data de Registro (para registros retroativos)
-        data_registro = st.date_input(
-            "Data de Registro",
-            value=datetime.now().date(),  # valor padrão: hoje
-            help="Escolha uma data retroativa se necessário"
-        )
-
-        # Quantidade de veículos
-        st.subheader("Quantidade de Veículos")
-        quantidades = {}
-        for veiculo in tipos_veiculos:
-            col1, col2 = st.columns([3, 1])
-            col1.write(veiculo)
-            quantidades[veiculo] = col2.number_input(
-                f"Qtd {veiculo}", min_value=0, step=1, key=f"{veiculo}_qtd"
-            )
-
-        # Observações
-        observacoes = st.text_area("Observações (opcional)")
-
-        # Botão de submissão
-        if st.button("Submeter para aprovação"):
-
-            # 1️⃣ Verifica se já existe registro para a mesma data e razão social (pendentes ou aprovados)
-            data_existe = supabase.table("registros_diarios") \
-                .select("*") \
-                .eq("Razao_Social", razao_social) \
-                .eq("Data_de_Registro", data_registro.isoformat()) \
-                .in_("Status", ["Pendente", "Aprovado"]) \
-                .execute()
-
-            if data_existe.data:  # se retornar algum registro
-                st.error("❌ Você já registrou o uso de veículos para essa data. Por favor, consulte o relatório.")
-                st.stop()  # interrompe a submissão
-
-            # 2️⃣ Se não houver duplicata, cria os registros
-            registros = []
-
-            for veiculo, quantidade in quantidades.items():
-                if quantidade > 0:
-                    registro = {
-                        "Razao_Social": razao_social,
-                        "Ano": int(ano),
-                        "Quinzena": quinzena,
-                        "Mes": mes,
-                        "Operacao": operacao,
-                        "Tipo_de_Veiculo": veiculo,
-                        "Quantidade": int(quantidade),
-                        "Observacoes": observacoes if observacoes else "",
-                        "Data_de_Submissao": datetime.now().isoformat(),
-                        "Data_de_Registro": data_registro.isoformat(),  # apenas a data
-                        "Status": "Pendente",
-                        "Aprovador": "Pendente",
-                        "Data_da_Decisao": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                        "Motivo_Rejeicao": "Pendente"
-                    }
-                    registros.append(registro)
-
-            if registros:
+                # Consulta registros existentes para a data
                 try:
-                    response = supabase.table("registros_diarios").insert(registros).execute()
-                    if hasattr(response, "error") and response.error:
-                        st.error(f"Erro ao enviar registro: {response.error.message}")
+                    res = supabase.table("registro_veiculos_calendario").select(
+                        "STATUS, MODALIDADE, QUANTIDADE, OPERACAO") \
+                        .eq("RAZAO_SOCIAL", razao_permitida).eq("DATA_OFICIAL", dia_str).execute()
+                    registros_existentes = res.data or []
+                except Exception:
+                    registros_existentes = []
+
+                # Determina status e símbolo
+                is_blocked = False
+                symbol = ""
+                if registros_existentes:
+                    # Se todos registros rejeitados, desbloqueia para correção
+                    todos_rejeitados = all(
+                        (r.get("STATUS") or r.get("Status") or "").lower() == "rejeitado"
+                        for r in registros_existentes
+                    )
+                    if todos_rejeitados:
+                        is_blocked = False  # desbloqueado
+                        symbol = "❌"
                     else:
-                        st.success("✅ Registro submetido para aprovação!")
-                        st.dataframe(pd.DataFrame(registros))
-                except Exception as e:
-                    st.error(f"Erro ao enviar para o Supabase: {e}")
-            else:
-                st.warning("⚠️ Nenhuma quantidade informada.")
-
-
-# ---------------- Aba Fluxo de Aprovação ----------------
-if "Fluxo de Aprovacao" in tab_dict:
-    with tab_dict["Fluxo de Aprovacao"]:
-        st.header("📊 Fluxo de Aprovação")
-
-        result = supabase.table("registros_diarios").select("*").execute()
-        data = result.data
-
-        if data:
-            df_fluxo = pd.DataFrame(data)
-
-            if razao_permitida != "TODOS":
-                df_fluxo = df_fluxo[df_fluxo["Razao_Social"] == razao_permitida]
-
-            meses = ["Todos","Janeiro","Fevereiro","Março","Abril","Maio","Junho",
-                     "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"]
-            mes_filtro = st.selectbox("Filtrar por mês", meses)
-            quinzena_filtro = st.selectbox("Filtrar por quinzena", ["Todos", "1ª Quinzena", "2ª Quinzena"])
-            status_filtro = st.selectbox("Filtrar por status", ["Todos", "Pendente", "Aprovado", "Rejeitado"])
-
-            df_filtrado = df_fluxo.copy()
-            if mes_filtro != "Todos":
-                df_filtrado = df_filtrado[df_filtrado["Mes"] == meses.index(mes_filtro)]
-            if quinzena_filtro != "Todos":
-                df_filtrado = df_filtrado[df_filtrado["Quinzena"] == (1 if quinzena_filtro == "1ª Quinzena" else 2)]
-            if status_filtro != "Todos":
-                df_filtrado = df_filtrado[df_filtrado["Status"] == status_filtro]
-
-            if not df_filtrado.empty:
-                st.dataframe(df_filtrado)
-
-                # Exportação para Excel
-                output = io.BytesIO()
-                with pd.ExcelWriter(output, engine="openpyxl") as writer:
-                    df_filtrado.to_excel(writer, index=False, sheet_name="Relatorio")
-                excel_data = output.getvalue()
-
-                st.download_button(
-                    label="📥 Baixar relatório filtrado (Excel)",
-                    data=excel_data,
-                    file_name=f"relatorio_{usuario_logado}.xlsx",
-                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                )
-            else:
-                st.info("Nenhum registro encontrado para este filtro.")
-        else:
-            st.info("Nenhum registro cadastrado.")
-
-# ---------------- Aba Aprovação ----------------
-if "Aprovacao" in tab_dict and usuario_logado in usuarios_aprovacao_somente:
-    with tab_dict["Aprovacao"]:
-        st.header("✅ Aprovação de Registros")
-
-        # Pega todos os registros pendentes
-        result = supabase.table("registros_diarios").select("*").eq("Status", "Pendente").execute()
-        data = result.data
-
-        if data:
-            df_pendentes = pd.DataFrame(data)
-
-            if not df_pendentes.empty:
-                # Flag de controle
-                if "acao_aprovacao" not in st.session_state:
-                    st.session_state["acao_aprovacao"] = None
-
-                for i, row in df_pendentes.iterrows():
-                    with st.expander(f"{row['Razao_Social']} - {row['Operacao']} - {row['Mes']}/{row['Ano']} - {row['Tipo_de_Veiculo']}"):
-                        st.write(row)
-                        motivo = st.text_input("Motivo da rejeição (se rejeitar)", key=f"motivo_{i}")
-                        col1, col2 = st.columns(2)
-
-                        # Botão Aprovar
-                        if col1.button("✔️ Aprovar", key=f"aprovar_{i}"):
-                            st.session_state["acao_aprovacao"] = ("Aprovado", row["id"], "N/A")
-
-                        # Botão Rejeitar
-                        if col2.button("❌ Rejeitar", key=f"rejeitar_{i}"):
-                            if not motivo:
-                                st.warning("Digite o motivo da rejeição antes de rejeitar!")
-                            else:
-                                st.session_state["acao_aprovacao"] = ("Rejeitado", row["id"], motivo)
-
-                # Processa ação fora do loop
-                if st.session_state["acao_aprovacao"]:
-                    status, registro_id, motivo_texto = st.session_state["acao_aprovacao"]
-                    update_result = supabase.table("registros_diarios").update({
-                        "Status": status,
-                        "Aprovador": usuario_logado,
-                        "Data_da_Decisao": datetime.now().isoformat(),
-                        "Motivo_Rejeicao": motivo_texto
-                    }).eq("id", registro_id).execute()
-
-                    if hasattr(update_result, "error") and update_result.error:
-                        st.error(f"Erro ao atualizar registro: {update_result.error.message}")
-                    else:
-                        if status == "Aprovado":
-                            st.success("Registro aprovado!")
+                        is_blocked = True  # bloqueia datas com registro aprovado ou pendente
+                        # prioriza exibir pendente se houver algum pendente
+                        status_val = [r.get("STATUS") or r.get("Status") for r in registros_existentes if
+                                      r.get("STATUS") or r.get("Status")]
+                        if any(s.lower() == "pendente" for s in status_val):
+                            symbol = "⏳"
                         else:
-                            st.warning("Registro rejeitado!")
+                            symbol = "✅"
 
-                    st.session_state["acao_aprovacao"] = None
-                    st.rerun()  # ✅ substitui o experimental_rerun
+                # Botão do dia
+                if cols[i].button(f"{symbol} {dia_label}", disabled=is_blocked and symbol != "❌", key=f"btn_{dia_str}"):
+                    # Se desbloqueado ou rejeitado, abre formulário para ajustes
+                    st.session_state["data_selecionada"] = dia_str
+                    st.session_state["form_aberto"] = True
+
+                    if registros_existentes and symbol != "❌":
+                        # mostra prévia se não desbloqueado (aprovado ou pendente)
+                        st.subheader(f"📄 Registro(s) de {dia_str}")
+                        for reg in registros_existentes:
+                            st.markdown(
+                                f"- **Veículo:** {reg.get('MODALIDADE', '—')}, **Qtd:** {reg.get('QUANTIDADE', '—')}, "
+                                f"**Operação:** {reg.get('OPERACAO', '—')}, **Status:** {reg.get('STATUS', '—')}"
+                            )
+        # ---------- Formulário persistente (não fecha ao interagir) ----------
+        if st.session_state.get("form_aberto") and st.session_state.get("data_selecionada"):
+            dia_str = st.session_state["data_selecionada"]
+            st.divider()
+            st.subheader(f"📝 Registrar uso de veículos — {dia_str}")
+
+            col1, col2 = st.columns(2)
+            if razao_permitida != "TODOS":
+                col1.info(f"🔒 Razão Social: **{razao_permitida}**")
+                razao_social = razao_permitida
             else:
-                st.info("Nenhum registro pendente para aprovação.")
-        else:
-            st.info("Nenhum registro pendente.")
+                razao_social = col1.selectbox("Razão Social", razoes_sociais, key=f"razao_{dia_str}")
+            operacao = col2.selectbox("Operação", ["TIKTOK", "BENNET JEANS", "SHEIN", "NUVEM SHOP"], key=f"oper_{dia_str}")
 
+            # Quantidade de veículos
+            st.markdown("**Quantidade de Veículos**")
+            tipos_veiculos = ["FIORINO", "VAN", "VUC", "CARRO UTILITÁRIO", "AJUDANTE", "MOTO"]
+            quantidades = {}
+            for i in range(0, len(tipos_veiculos), 3):
+                cols_q = st.columns(3)
+                for j, veiculo in enumerate(tipos_veiculos[i:i + 3]):
+                    quantidades[veiculo] = cols_q[j].number_input(
+                        veiculo, min_value=0, step=1, key=f"{veiculo}_{dia_str}"
+                    )
 
-# ---------------- Aba Relatorio ----------------
+            observacoes = st.text_area("Observações (opcional)", key=f"obs_{dia_str}")
+
+            if st.button("Registrar", key=f"submeter_{dia_str}"):
+                # Insere somente modalidades com quantidade > 0
+                for veiculo, qtd in quantidades.items():
+                    if qtd and qtd > 0:
+                        registro = {
+                            "RAZAO_SOCIAL": razao_social,
+                            "DATA_OFICIAL": dia_str,
+                            "DATA_DE_REGISTRO": datetime.now().strftime("%d/%m/%Y"),
+                            "MODALIDADE": veiculo,
+                            "QUANTIDADE": int(qtd),
+                            "OPERACAO": operacao,
+                            "STATUS": "Pendente",
+                            "APROVADOR": None,
+                            "DATA_DA_APROVACAO": None,
+                            "MOTIVO_REJEICAO": "",
+                            "OBSERVACOES": observacoes,
+                            "USUARIO_REGISTRANTE": usuario_logado
+                        }
+                        supabase.table("registro_veiculos_calendario").insert(registro).execute()
+
+                st.success(f"✅ Registro de {dia_str} submetido com sucesso!")
+                # fecha o form mantendo mês/ano
+                st.session_state["form_aberto"] = False
+                st.session_state["data_selecionada"] = None
+                # não forçamos rerun imediato — deixar usuário continuar no mesmo mês
+
+# ---------------- ABA RELATÓRIO ----------------
 if "Relatorio" in tab_dict:
     with tab_dict["Relatorio"]:
-        st.header("📊 Relatório de Registros Aprovados")
+        st.title("📊 Relatório de Registros")
 
-        result = supabase.table("registros_diarios").select("*").execute()
-        data = result.data
+        # ---------- Filtro por período ----------
+        st.markdown("**Selecione o período desejado:**")
+        hoje = datetime.now()
+        default_start = hoje.replace(day=1)
+        default_end = hoje.replace(day=15)  # Sugestão: primeira quinzena do mês
+        periodo = st.date_input(
+            "Período",
+            value=(default_start, default_end),
+            min_value=datetime(2025, 1, 1),
+            max_value=datetime(2030, 12, 31),
+            help="Selecione a data inicial e final do período"
+        )
 
-        if data:
-            df = pd.DataFrame(data)
-            df_aprovados = df[df["Status"] == "Aprovado"]
-
-            if razao_permitida != "TODOS":
-                df_aprovados = df_aprovados[df_aprovados["Razao_Social"] == razao_permitida]
-
-            if df_aprovados.empty:
-                st.info("Nenhum registro aprovado para exibir.")
+        if isinstance(periodo, tuple) and len(periodo) == 2:
+            data_inicio, data_fim = periodo
+            if data_inicio > data_fim:
+                st.error("❌ A data inicial não pode ser maior que a final.")
             else:
-                meses = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho",
-                         "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"]
-                mes_selecionado = st.selectbox("Mês", ["Todos"] + meses)
-                quinzena_selecionada = st.selectbox("Quinzena", ["Todos", "1ª Quinzena", "2ª Quinzena"])
+                # ---------- Consulta Supabase ----------
+                query = supabase.table("registro_veiculos_calendario").select("*")
+                # Filtra por razão social do usuário, se não for TODOS
+                if razao_permitida != "TODOS":
+                    query = query.eq("RAZAO_SOCIAL", razao_permitida)
+                # Filtra pelo período selecionado (DATA_OFICIAL)
+                query = query.gte("DATA_OFICIAL", data_inicio.isoformat()) \
+                             .lte("DATA_OFICIAL", data_fim.isoformat())
+                query = query.eq("STATUS", "Aprovado")
 
-                if mes_selecionado != "Todos":
-                    mes_num = meses.index(mes_selecionado) + 1
-                    df_aprovados = df_aprovados[df_aprovados["Mes"] == mes_num]
+                try:
+                    res = query.execute()
+                    registros = res.data
+                except Exception:
+                    registros = []
 
-                if quinzena_selecionada != "Todos":
-                    quinzena_num = 1 if quinzena_selecionada == "1ª Quinzena" else 2
-                    df_aprovados = df_aprovados[df_aprovados["Quinzena"] == quinzena_num]
+                if registros:
+                    df = pd.DataFrame(registros)
+                    st.success(f"✅ {len(df)} registros encontrados!")
+                    st.dataframe(df)
 
-                if not df_aprovados.empty:
-                    st.dataframe(df_aprovados.sort_values(["Ano","Mes","Quinzena","Razao_Social"]))
+                    # ---------- Download do Excel ----------
+                    import io  # colocar no topo do script junto com outros imports
 
-                    # Exportação Excel
-                    output = io.BytesIO()
-                    with pd.ExcelWriter(output, engine="openpyxl") as writer:
-                        df_aprovados.to_excel(writer, index=False, sheet_name="Aprovados")
-                    excel_data = output.getvalue()
 
+                    # ---------- Download do Excel ----------
+                    @st.cache_data
+                    def convert_df_to_excel(df):
+                        output = io.BytesIO()
+                        with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                            df.to_excel(writer, index=False)
+                        processed_data = output.getvalue()
+                        return processed_data
+
+
+                    excel_bytes = convert_df_to_excel(df)
                     st.download_button(
-                        label="📥 Baixar Excel",
-                        data=excel_data,
-                        file_name="relatorio_registros_aprovados.xlsx",
+                        label="⬇️ Baixar relatório em Excel",
+                        data=excel_bytes,
+                        file_name=f"relatorio_{data_inicio}_{data_fim}.xlsx",
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     )
-                else:
-                    st.info("Nenhum registro encontrado para este filtro.")
+
+# ---------------- ABA FLUXO DE APROVACAO ----------------
+if "Fluxo de Aprovacao" in tab_dict:
+    with tab_dict["Fluxo de Aprovacao"]:
+        st.title("📋 Fluxo de Registros")
+
+        # Filtros
+        st.markdown("**Filtrar por período e status:**")
+        hoje = datetime.now()
+        periodo = st.date_input(
+            "Período",
+            value=(hoje.replace(day=1), hoje),
+            min_value=datetime(2025, 1, 1),
+            max_value=datetime(2030, 12, 31)
+        )
+        data_inicio, data_fim = periodo
+
+        status_filtro = st.selectbox("Status", ["Todos", "Pendente", "Aprovado", "Rejeitado"])
+
+        query = supabase.table("registro_veiculos_calendario").select("*") \
+                        .gte("DATA_OFICIAL", data_inicio.isoformat()) \
+                        .lte("DATA_OFICIAL", data_fim.isoformat())
+        if razao_permitida != "TODOS":
+            query = query.eq("RAZAO_SOCIAL", razao_permitida)
+        if status_filtro != "Todos":
+            query = query.eq("STATUS", status_filtro)
+        registros = query.execute().data or []
+
+        if registros:
+            df = pd.DataFrame(registros)
+            st.dataframe(df)
         else:
-            st.info("Nenhum registro cadastrado.")
+            st.info("ℹ️ Nenhum registro encontrado para o filtro selecionado")
+
+# ---------------- ABA APROVACAO ----------------
+if "Aprovacao" in tab_dict:
+    if usuario_logado in usuarios_aprovacao_somente:
+        with tab_dict["Aprovacao"]:
+            st.title("🛠 Aprovação de Registros")
+
+            # Filtro de período
+            hoje = datetime.now()
+            periodo = st.date_input(
+                "Período",
+                value=(hoje.replace(day=1), hoje),
+                min_value=datetime(2025, 1, 1),
+                max_value=datetime(2030, 12, 31)
+            )
+            data_inicio, data_fim = periodo
+
+            # Consulta registros pendentes
+            query = supabase.table("registro_veiculos_calendario").select("*") \
+                .eq("STATUS", "Pendente") \
+                .gte("DATA_OFICIAL", data_inicio.isoformat()) \
+                .lte("DATA_OFICIAL", data_fim.isoformat())
+            registros = query.execute().data or []
+
+            if registros:
+                st.success(f"✅ {len(registros)} registros pendentes")
+                for i, registro in enumerate(registros):
+                    with st.expander(
+                            f"{registro['RAZAO_SOCIAL']} - {registro['DATA_OFICIAL']} - {registro['MODALIDADE']}"):
+                        st.markdown(f"**Operação:** {registro['OPERACAO']}")
+                        st.markdown(f"**Quantidade:** {registro['QUANTIDADE']}")
+                        st.markdown(f"**Usuário Registrante:** {registro.get('USUARIO_REGISTRANTE', '—')}")
+                        obs = registro.get("OBSERVACOES") or registro.get("Observacoes")
+                        if obs:
+                            st.markdown(f"**Observações:** {obs}")
+
+                        # Aprovar / Rejeitar
+                        col1, col2, col3 = st.columns([1, 1, 3])
+                        aprovar, rejeitar, motivo_rejeicao = False, False, None
+                        with col1:
+                            aprovar = st.button("✅ Aprovar", key=f"aprovar_{i}")
+                        with col2:
+                            rejeitar = st.button("❌ Rejeitar", key=f"rejeitar_{i}")
+                        if rejeitar:
+                            # Atualiza imediatamente o STATUS para Rejeitado
+                            supabase.table("registro_veiculos_calendario").update({
+                                "STATUS": "Rejeitado",
+                                "APROVADOR": usuario_logado,
+                                "DATA_DA_APROVACAO": None
+                            }).eq("id", registro["id"]).execute()
+                            st.success("❌ Registro marcado como rejeitado (pendente de motivo)")
+
+                            # Agora permite inserir/editar motivo
+                            motivo_rejeicao = st.text_area("Motivo da rejeição", key=f"motivo_{i}",
+                                                           value=registro.get("MOTIVO_REJEICAO") or "")
+                            if st.button("Registrar/Atualizar Rejeição", key=f"registrar_rej_{i}"):
+                                supabase.table("registro_veiculos_calendario").update({
+                                    "MOTIVO_REJEICAO": motivo_rejeicao
+                                }).eq("id", registro["id"]).execute()
+                                st.success("✅ Motivo da rejeição registrado!")
+                                st.experimental_rerun()
+                        if aprovar:
+                            supabase.table("registro_veiculos_calendario").update({
+                                "STATUS": "Aprovado",
+                                "APROVADOR": usuario_logado,
+                                "DATA_DA_APROVACAO": datetime.now().isoformat(),
+                                "MOTIVO_REJEICAO": None
+                            }).eq("id", registro["id"]).execute()
+
+                            # Remove o registro da lista local para sumir imediatamente
+                            registros.pop(i)
+                            st.success("✅ Registro aprovado!")
+            else:
+                st.info("ℹ️ Nenhum registro pendente encontrado")
+    else:
+        with tab_dict["Aprovacao"]:
+            st.warning("⚠️ Você não tem permissão para acessar esta aba")
+
 
 
 
