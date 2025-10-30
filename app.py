@@ -159,7 +159,7 @@ razoes_sociais = [
 ]
 
 tipos_veiculos = ["FIORINO", "VAN", "VUC", "CARRO UTILITARIO", "AJUDANTE", "MOTO"]
-operacoes = ["TIKTOK", "BENNET JEANS", "SHEIN", "NUVEMSHOP"]
+operacoes = ["TIKTOK", "BENNET JEANS", "SHEIN", "NUVEMSHOP", "SHOP FOCO"]
 
 # ---------------- CONFIGURAÇÃO DAS ABAS ----------------
 usuarios_aprovacao_somente = {
@@ -614,3 +614,4 @@ if "Aprovacao" in tab_dict:
                                     st.rerun()
             else:
                 st.info("ℹ️ Nenhum registro pendente de aprovação no período selecionado.")
+
