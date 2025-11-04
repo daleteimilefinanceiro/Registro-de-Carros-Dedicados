@@ -158,7 +158,7 @@ razoes_sociais = [
     "TEREZINHA APARECIDA PATEL SERVICOS DE LOGISTICA LTDA", "WF FINGER TRANSPORTE E LOGISTICA LTDA"
 ]
 
-tipos_veiculos = ["FIORINO", "VAN", "VUC", "CARRO UTILITARIO", "AJUDANTE", "MOTO"]
+tipos_veiculos = ["FIORINO", "VAN", "VUC", "CARRO UTILITARIO", "AJUDANTE", "MOTO", "3/4"]
 operacoes = ["TIKTOK", "BENNET JEANS", "SHEIN", "NUVEMSHOP", "SHOP FOCO"]
 
 # ---------------- CONFIGURAÇÃO DAS ABAS ----------------
@@ -614,4 +614,5 @@ if "Aprovacao" in tab_dict:
                                     st.rerun()
             else:
                 st.info("ℹ️ Nenhum registro pendente de aprovação no período selecionado.")
+
 
