@@ -21,6 +21,7 @@ supabase = create_client(url, key)
 usuarios = {
     "financeadm": {"senha": "Dcschv2020@", "razao": "TODOS"},
     "SRM2500123": {"senha": "ba7V1sK1fzYAgIGy", "razao": "2AR TRANSPORTES LTDA"},
+    "SRM2503544": {"senha": "eHjjfGrWHyMayCxI", "razao": "LT WAY TRANSPORTES LTDA"},
     "SRM2501082": {"senha": "TbrTNBmm3E2WDi7y", "razao": "NEW EXPRESS BN LTDA."},
     "SRM2500909": {"senha": "sfgzEwAggNPsu43J", "razao": "GETLOG TRANSPORTES LTDA"},
     "leticia.lima": {"senha": "LL2025!", "razao": "TODOS"},
@@ -156,7 +157,7 @@ razoes_sociais = [
     "NOVALINK MT COMERCIAL LTDA", "PREST SERVI APOIO AO E-COMMERCE LTDA", "QR PHONE ASSISTENCIA TECNICA LTDA",
     "RESENSERV-RESENDE SERVICOS LTDA", "RF TRANSPORTES LTDA", "RIVILOG LTDA",
     "ROHNES TRANSPORTE E LOGISTICA EIRELI", "TEC SERVICE TRANSPORTES LTDA",
-    "TEREZINHA APARECIDA PATEL SERVICOS DE LOGISTICA LTDA", "WF FINGER TRANSPORTE E LOGISTICA LTDA"
+    "TEREZINHA APARECIDA PATEL SERVICOS DE LOGISTICA LTDA", "WF FINGER TRANSPORTE E LOGISTICA LTDA","LT WAY TRANSPORTES LTDA"
 ]
 
 tipos_veiculos = ["FIORINO", "VAN", "VUC", "CARRO UTILITARIO", "AJUDANTE", "MOTO", "3/4"]
@@ -615,6 +616,7 @@ if "Aprovacao" in tab_dict:
                                     st.rerun()
             else:
                 st.info("ℹ️ Nenhum registro pendente de aprovação no período selecionado.")
+
 
 
 
