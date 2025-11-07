@@ -31,7 +31,8 @@ usuarios = {
     "rafael.reis": {"senha": "RR2025!", "razao": "TODOS"},
     "paula.soares": {"senha": "PS2025!", "razao": "TODOS"},
     "SRM2404167": {"senha": "bcNL6gY37UAKBG62", "razao": "WF FINGER TRANSPORTE E LOGISTICA LTDA"},
-    "SRM2301839": {"senha": "VDML4iEq2L0aD5rR", "razao": "RF TRANSPORTES LTDA"}
+    "SRM2301839": {"senha": "VDML4iEq2L0aD5rR", "razao": "RF TRANSPORTES LTDA"},
+    "SRM2402169": {"senha": "cXH7SpRxW0erQjYh", "razao": "RIVILOG LTDA"}
 }
 
 
@@ -616,6 +617,7 @@ if "Aprovacao" in tab_dict:
                                     st.rerun()
             else:
                 st.info("ℹ️ Nenhum registro pendente de aprovação no período selecionado.")
+
 
 
 
