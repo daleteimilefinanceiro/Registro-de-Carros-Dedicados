@@ -33,6 +33,7 @@ usuarios = {
     "SRM2404167": {"senha": "bcNL6gY37UAKBG62", "razao": "WF FINGER TRANSPORTE E LOGISTICA LTDA"},
     "SRM2301839": {"senha": "VDML4iEq2L0aD5rR", "razao": "RF TRANSPORTES LTDA"},
     "SRM2402169": {"senha": "cXH7SpRxW0erQjYh", "razao": "RIVILOG LTDA"},
+    "SRM2500247": {"senha": "70FrwixLao8aa3dX", "razao": "OSEAS PORTO TRANSPORTES LTDA"},
     "SRM2404319": {"senha": "PxIRj38soQHjjIQv", "razao": "H&L EXPRESSO LTDA"}
 }
 
@@ -159,7 +160,7 @@ razoes_sociais = [
     "NOVALINK MT COMERCIAL LTDA", "PREST SERVI APOIO AO E-COMMERCE LTDA", "QR PHONE ASSISTENCIA TECNICA LTDA",
     "RESENSERV-RESENDE SERVICOS LTDA", "RF TRANSPORTES LTDA", "RIVILOG LTDA",
     "ROHNES TRANSPORTE E LOGISTICA EIRELI", "TEC SERVICE TRANSPORTES LTDA",
-    "TEREZINHA APARECIDA PATEL SERVICOS DE LOGISTICA LTDA", "WF FINGER TRANSPORTE E LOGISTICA LTDA","LT WAY TRANSPORTES LTDA"
+    "TEREZINHA APARECIDA PATEL SERVICOS DE LOGISTICA LTDA", "WF FINGER TRANSPORTE E LOGISTICA LTDA","LT WAY TRANSPORTES LTDA","OSEAS PORTO TRANSPORTES LTDA"
 ]
 
 tipos_veiculos = ["FIORINO", "VAN", "VUC", "CARRO UTILITARIO", "AJUDANTE", "MOTO", "3/4"]
@@ -618,6 +619,7 @@ if "Aprovacao" in tab_dict:
                                     st.rerun()
             else:
                 st.info("ℹ️ Nenhum registro pendente de aprovação no período selecionado.")
+
 
 
 
