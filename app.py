@@ -25,9 +25,9 @@ usuarios = {
     "SRM2501082": {"senha": "TbrTNBmm3E2WDi7y", "razao": "NEW EXPRESS BN LTDA."},
     "SRM2500909": {"senha": "sfgzEwAggNPsu43J", "razao": "GETLOG TRANSPORTES LTDA"},
     "leticia.lima": {"senha": "LL2025!", "razao": "TODOS"},
-    "daniela.conceicao": {"senha": "DC2025!", "razao": "TODOS"},
-    "paula.lacerda": {"senha": "PL2025!", "razao": "TODOS"},
-    "guilherme.barbosa": {"senha": "GB2025!", "razao": "TODOS"},
+    "river.zhou": {"senha": "RZ2026!", "razao": "TODOS"},
+    "isabel.liu": {"senha": "IL2026!", "razao": "TODOS"},
+    "lijun.zeng": {"senha": "LZ2026!", "razao": "TODOS"},
     "rafael.reis": {"senha": "RR2025!", "razao": "TODOS"},
     "paula.soares": {"senha": "PS2025!", "razao": "TODOS"},
     "SRM2404167": {"senha": "bcNL6gY37UAKBG62", "razao": "WF FINGER TRANSPORTE E LOGISTICA LTDA"},
@@ -619,6 +619,7 @@ if "Aprovacao" in tab_dict:
                                     st.rerun()
             else:
                 st.info("ℹ️ Nenhum registro pendente de aprovação no período selecionado.")
+
 
 
 
