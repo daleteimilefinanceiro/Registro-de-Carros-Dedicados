@@ -168,7 +168,7 @@ operacoes = ["TIKTOK", "BENNET JEANS", "SHEIN", "NUVEMSHOP", "SHOP FOCO"]
 
 # ---------------- CONFIGURAÇÃO DAS ABAS ----------------
 usuarios_aprovacao_somente = {
-    "leticia.lima", "daniela.conceicao", "paula.lacerda", "guilherme.barbosa",
+    "leticia.lima", "river.zhou", "isabel.liu", "lijun.zeng",
     "rafael.reis", "paula.soares",
 }
 
@@ -619,6 +619,7 @@ if "Aprovacao" in tab_dict:
                                     st.rerun()
             else:
                 st.info("ℹ️ Nenhum registro pendente de aprovação no período selecionado.")
+
 
 
 
