@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 from datetime import datetime, timedelta
-from supabase import create_client
+from supabase import create_client, ClientOptions
 import io
 import logging
 
@@ -14,17 +14,17 @@ st.title("🚗 Registro de Carros Dedicados")
 
 # ---------------- CONEXÃO COM SUPABASE ----------------
 import streamlit as st
-from supabase import create_client
+from supabase import create_client, ClientOptions
 
 url = st.secrets["SUPABASE_URL"]
 key = st.secrets["SUPABASE_KEY"]
 
-supabase = create_client(
-    url,
-    key,
-    options={"http2": False}
+options = ClientOptions(
+    auto_refresh_token=True,
+    persist_session=True,
+    http2=False
 )
-
+supabase = create_client(url, key, options)
 # ---------------- CONFIGURAÇÃO DE LOGIN ----------------
 usuarios = {
     "financeadm": {"senha": "Dcschv2020@", "razao": "TODOS"},
@@ -629,6 +629,7 @@ if "Aprovacao" in tab_dict:
                                     st.rerun()
             else:
                 st.info("ℹ️ Nenhum registro pendente de aprovação no período selecionado.")
+
 
 
 
