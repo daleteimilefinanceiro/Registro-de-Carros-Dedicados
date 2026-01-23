@@ -2,4 +2,7 @@ streamlit>=1.31.0
 pandas>=2.0.0
 openpyxl
 xlsxwriter
+
 supabase==2.3.1
+gotrue==2.9.0
+httpx<0.28
