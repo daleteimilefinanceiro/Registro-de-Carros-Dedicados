@@ -22,7 +22,7 @@ key = st.secrets["SUPABASE_KEY"]
 supabase = create_client(url, key)
 
 st.success("✅ Conectou no Supabase!")
-st.stop()
+st.success("✅ Conectou no Supabase!")
 # ---------------- CONFIGURAÇÃO DE LOGIN ----------------
 usuarios = {
     "financeadm": {"senha": "Dcschv2020@", "razao": "TODOS"},
@@ -627,6 +627,7 @@ if "Aprovacao" in tab_dict:
                                     st.rerun()
             else:
                 st.info("ℹ️ Nenhum registro pendente de aprovação no período selecionado.")
+
 
 
 
