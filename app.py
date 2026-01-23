@@ -19,7 +19,11 @@ from supabase import create_client
 url = st.secrets["SUPABASE_URL"]
 key = st.secrets["SUPABASE_KEY"]
 
-supabase = create_client(url, key)
+supabase = create_client(
+    url,
+    key,
+    options={"http2": False}
+)
 
 # ---------------- CONFIGURAÇÃO DE LOGIN ----------------
 usuarios = {
@@ -625,6 +629,7 @@ if "Aprovacao" in tab_dict:
                                     st.rerun()
             else:
                 st.info("ℹ️ Nenhum registro pendente de aprovação no período selecionado.")
+
 
 
 
