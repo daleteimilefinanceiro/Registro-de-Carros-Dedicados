@@ -3,6 +3,4 @@ pandas>=2.0.0
 openpyxl
 xlsxwriter
 
-supabase==2.3.1
-gotrue==2.9.0
-httpx<0.28
+supabase==1.0.4
