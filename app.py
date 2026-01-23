@@ -13,8 +13,12 @@ st.set_page_config(layout="wide")
 st.title("🚗 Registro de Carros Dedicados")
 
 # ---------------- CONEXÃO COM SUPABASE ----------------
-url = "https://nndurpppvlwnozappqhl.supabase.co"
-key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5uZHVycHBwdmx3bm96YXBwcWhsIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1Njk5NDEyMiwiZXhwIjoyMDcyNTcwMTIyfQ.HSurs6kpKXCTRwR9eJE-GbZHYr0IZCQoWIaCODNHiT8"
+import streamlit as st
+from supabase import create_client
+
+url = st.secrets["SUPABASE_URL"]
+key = st.secrets["SUPABASE_KEY"]
+
 supabase = create_client(url, key)
 
 # ---------------- CONFIGURAÇÃO DE LOGIN ----------------
@@ -621,6 +625,7 @@ if "Aprovacao" in tab_dict:
                                     st.rerun()
             else:
                 st.info("ℹ️ Nenhum registro pendente de aprovação no período selecionado.")
+
 
 
 
