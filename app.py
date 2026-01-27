@@ -39,7 +39,14 @@ usuarios = {
     "SRM2500247": {"senha": "70FrwixLao8aa3dX", "razao": "OSEAS PORTO TRANSPORTES LTDA"},
     "SRM2402921": {"senha": "zDhi3Nn8c41LzxJC", "razao": "NAPORTA TECNOLOGIA LOGISTICA LTDA"},
     "SRM2404319": {"senha": "PxIRj38soQHjjIQv", "razao": "H&L EXPRESSO LTDA"},
-    "SRM2402510": {"senha": "RF7FyZsnYvgxHqXO", "razao": "CLIPE LOG LOGISTICA E TRANSPORTE DE CARGAS LTDA"}
+    "SRM2402510": {"senha": "RF7FyZsnYvgxHqXO", "razao": "CLIPE LOG LOGISTICA E TRANSPORTE DE CARGAS LTDA"},
+    "SRM2600051": {"senha": "X3KPe1WVuebuoVFp", "razao": "WJK ENTREGAS RAPIDAS LIMEIRA LTDA"},
+    "SRM2402980": {"senha": "w5jCqDC5Osbb72Fc", "razao": "LIMINAR LOG TRANSPORTES E LOGISTICA LTDA"},
+    "SRM2301489": {"senha": "PcUKjJ9prl2D8ySn", "razao": "L A ZAMBELLO EIRELI"},
+    "SRM2301330": {"senha": "UMmFCMUXzgUeMBIE", "razao": "AST TRANSPORTE EXPRESS"},
+    "SRM2503450": {"senha": "zXWsSFRYkCXovT3O", "razao": "LFB TRANSPORTES LTDA"},
+    "SRM2503189": {"senha": "VcfIVZkLzGaKGInV", "razao": "ONLINE SOLUCOES E LOGISTICAS LTDA"},
+    "SRM2501542": {"senha": "oyNGVBvdWIBghah2", "razao": "AVISTA LOGISTICA EXPRESS LTDA"}
 }
 
 # ---------------- FUNÇÕES AUXILIARES ----------------
@@ -182,7 +189,14 @@ razoes_sociais = [
     "TEREZINHA APARECIDA PATEL SERVICOS DE LOGISTICA LTDA",
     "WF FINGER TRANSPORTE E LOGISTICA LTDA",
     "LT WAY TRANSPORTES LTDA",
-    "OSEAS PORTO TRANSPORTES LTDA"
+    "OSEAS PORTO TRANSPORTES LTDA",
+    "WJK ENTREGAS RAPIDAS LIMEIRA LTDA",
+    "LIMINAR LOG TRANSPORTES E LOGISTICA LTDA",
+    "L A ZAMBELLO EIRELI",
+    "AST TRANSPORTE EXPRESS",
+    "LFB TRANSPORTES LTDA",
+    "ONLINE SOLUCOES E LOGISTICAS LTDA",
+    "AVISTA LOGISTICA EXPRESS LTDA"
 ]
 
 tipos_veiculos = ["FIORINO", "VAN", "VUC", "CARRO UTILITARIO", "AJUDANTE", "MOTO", "3/4"]
@@ -680,6 +694,7 @@ if "Aprovacao" in tab_dict:
                                     st.rerun()
             else:
                 st.info("ℹ️ Nenhum registro pendente de aprovação no período selecionado.")
+
 
 
 
