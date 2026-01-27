@@ -43,9 +43,10 @@ usuarios = {
 }
 
 # ---------------- FUNÇÕES AUXILIARES ----------------
-def verificar_duplicata(razao, data, operacao):
+def verificar_duplicata(razao, data, operacao, cidade):
     """
     Verifica se já existe registro ativo (não rejeitado) para evitar duplicatas.
+    Considera: razão social, data, operação E cidade.
     Retorna: (bool: existe_duplicata, list: registros_encontrados)
     """
     try:
@@ -53,6 +54,7 @@ def verificar_duplicata(razao, data, operacao):
             .eq("RAZAO_SOCIAL", razao) \
             .eq("DATA_OFICIAL", data) \
             .eq("OPERACAO", operacao) \
+            .eq("CIDADE", cidade) \
             .neq("STATUS", "Rejeitado")
         registros = query.execute().data or []
         return len(registros) > 0, registros
@@ -364,16 +366,17 @@ if "Registro" in tab_dict:
             cidade = col3.selectbox("🏙️ Cidade", cidades, key=f"cidade_{dia_str}")
             
             # VERIFICAÇÃO DE DUPLICATA
-            tem_duplicata, registros_dup = verificar_duplicata(razao_social, dia_str, operacao)
+            tem_duplicata, registros_dup = verificar_duplicata(razao_social, dia_str, operacao, cidade)
             
             if tem_duplicata:
-                st.warning(f"⚠️ Já existe registro **{operacao}** para esta data:")
+                st.warning(f"⚠️ Já existe registro **{operacao}** para **{cidade}** nesta data:")
                 with st.expander("👁️ Ver registros existentes"):
                     for reg in registros_dup:
                         status_emoji = {"Pendente": "⏳", "Aprovado": "✅", "Rejeitado": "❌"}.get(reg.get("STATUS"), "")
+                        cidade_reg = reg.get('CIDADE', '—')
                         st.markdown(
-                            f"{status_emoji} **{reg.get('MODALIDADE')}**: {reg.get('QUANTIDADE')} unidades - Status: {reg.get('STATUS')}")
-                st.info("💡 Selecione outra operação ou solicite a rejeição do registro existente.")
+                            f"{status_emoji} **{reg.get('MODALIDADE')}**: {reg.get('QUANTIDADE')} unidades - Cidade: {cidade_reg} - Status: {reg.get('STATUS')}")
+                st.info("💡 Selecione outra operação/cidade ou solicite a rejeição do registro existente.")
                 st.stop()
             
             # Quantidade de veículos
@@ -677,6 +680,7 @@ if "Aprovacao" in tab_dict:
                                     st.rerun()
             else:
                 st.info("ℹ️ Nenhum registro pendente de aprovação no período selecionado.")
+
 
 
 
