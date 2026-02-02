@@ -25,7 +25,6 @@ usuarios = {
     "financeadm": {"senha": "Dcschv2020@", "razao": "TODOS"},
     "SRM2500123": {"senha": "ba7V1sK1fzYAgIGy", "razao": "2AR TRANSPORTES LTDA"},
     "SRM2503544": {"senha": "eHjjfGrWHyMayCxI", "razao": "LT WAY TRANSPORTES LTDA"},
-    "SRM2501082": {"senha": "TbrTNBmm3E2WDi7y", "razao": "NEW EXPRESS BN LTDA."},
     "SRM2500909": {"senha": "sfgzEwAggNPsu43J", "razao": "GETLOG TRANSPORTES LTDA"},
     "leticia.lima": {"senha": "LL2025!", "razao": "TODOS"},
     "river.zhou": {"senha": "RZ2026!", "razao": "TODOS"},
@@ -702,6 +701,7 @@ if "Aprovacao" in tab_dict:
                                     st.rerun()
             else:
                 st.info("ℹ️ Nenhum registro pendente de aprovação no período selecionado.")
+
 
 
 
