@@ -47,7 +47,8 @@ usuarios = {
     "SRM2503189": {"senha": "VcfIVZkLzGaKGInV", "razao": "ONLINE SOLUCOES E LOGISTICAS LTDA"},
     "SRM2501542": {"senha": "oyNGVBvdWIBghah2", "razao": "AVISTA LOGISTICA EXPRESS LTDA"},
     "SRM2504004": {"senha": "EDISY3PWq0iQiq1Z", "razao": "JUCIMARA QUITERIA RIBEIRO LOPES - TRANSPORTES"},
-    "SRM2400717": {"senha": "rXMzaY7AwmGhkukB", "razao": "FLAVIO PEREIRA"}
+    "SRM2400717": {"senha": "rXMzaY7AwmGhkukB", "razao": "FLAVIO PEREIRA"},
+    "SRM2301691": {"senha": "QfsL4ozXdOrXyF9N", "razao": "DONALDO TRANSPORTES E LOGISTICA LTDA"}
 }
 
 # ---------------- FUNÇÕES AUXILIARES ----------------
@@ -702,6 +703,7 @@ if "Aprovacao" in tab_dict:
                                     st.rerun()
             else:
                 st.info("ℹ️ Nenhum registro pendente de aprovação no período selecionado.")
+
 
 
 
