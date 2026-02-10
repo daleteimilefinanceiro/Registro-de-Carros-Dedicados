@@ -229,7 +229,8 @@ cidades = [
     "PALHOÇA",
     "SANTA CATARINA",
     "CURITIBA",
-    "RIO DE JANEIRO"
+    "RIO DE JANEIRO",
+    "PETRÓPOLIS"
 ]
 
 # ---------------- CONFIGURAÇÃO DAS ABAS ----------------
@@ -703,6 +704,7 @@ if "Aprovacao" in tab_dict:
                                     st.rerun()
             else:
                 st.info("ℹ️ Nenhum registro pendente de aprovação no período selecionado.")
+
 
 
 
