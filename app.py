@@ -48,7 +48,8 @@ usuarios = {
     "SRM2501542": {"senha": "oyNGVBvdWIBghah2", "razao": "AVISTA LOGISTICA EXPRESS LTDA"},
     "SRM2504004": {"senha": "EDISY3PWq0iQiq1Z", "razao": "JUCIMARA QUITERIA RIBEIRO LOPES - TRANSPORTES"},
     "SRM2400717": {"senha": "rXMzaY7AwmGhkukB", "razao": "FLAVIO PEREIRA"},
-    "SRM2301691": {"senha": "QfsL4ozXdOrXyF9N", "razao": "DONALDO TRANSPORTES E LOGISTICA LTDA"}
+    "SRM2301691": {"senha": "QfsL4ozXdOrXyF9N", "razao": "DONALDO TRANSPORTES E LOGISTICA LTDA"},
+    "SRM2600372": {"senha": "5nfklhZNTC2E4R3y", "razao": "VIEIRA LOPES LOGISTICA LTDA"}
 }
 
 # ---------------- FUNÇÕES AUXILIARES ----------------
@@ -200,7 +201,8 @@ razoes_sociais = [
     "ONLINE SOLUCOES E LOGISTICAS LTDA",
     "AVISTA LOGISTICA EXPRESS LTDA",
     "JUCIMARA QUITERIA RIBEIRO LOPES - TRANSPORTES",
-    "FLAVIO PEREIRA"
+    "FLAVIO PEREIRA",
+    "VIEIRA LOPES LOGISTICA LTDA"
 ]
 
 tipos_veiculos = ["FIORINO", "VAN", "VUC", "CARRO UTILITARIO", "AJUDANTE", "MOTO", "3/4"]
@@ -704,6 +706,7 @@ if "Aprovacao" in tab_dict:
                                     st.rerun()
             else:
                 st.info("ℹ️ Nenhum registro pendente de aprovação no período selecionado.")
+
 
 
 
