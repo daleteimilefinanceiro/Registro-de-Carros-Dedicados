@@ -232,7 +232,49 @@ cidades = [
     "SANTA CATARINA",
     "CURITIBA",
     "RIO DE JANEIRO",
-    "PETRÓPOLIS"
+    "PETRÓPOLIS",
+    "ARARAQUARA",
+    "ARAÇATUBA",
+    "DIADEMA",
+    "VOTUPORANGA",
+    "DOIS CORREGOS",
+    "PORTO FELIZ",
+    "MOGI MIRIM",
+    "MOGI GUAÇU",
+    "BEBEDOURO",
+    "POA",
+    "GUARATINGUETA",
+    "CAÇAPAVA",
+    "TAUBATÉ",
+    "TREMEMBÉ",
+    "PINDAMONHANGABA",
+    "ROSEIRA",
+    "APARECIDA",
+    "BRUSQUE",
+    "ITAJAÍ",
+    "ITAPEMA",
+    "BALNEÁRIO CAMBORIÚ",
+    "CAMBORIÚ",
+    "NAVEGANTES",
+    "PORTO BELO",
+    "BALNEÁRIO PICARRAS",
+    "GUABIRUBA",
+    "BLUMENAU",
+    "INDAIAL",
+    "TIMBÓ",
+    "POMERODE",
+    "BENEDITO NOVO",
+    "DOUTOR PEDRINHO",
+    "GASPAR",
+    "ILHOTA",
+    "MARÍLIA",
+    "SÃO CARLOS",
+    "CATANDUVA",
+    "URUPES",
+    "SANTOS",
+    "MIRASSOL",
+    "JAU"
+
 ]
 
 # ---------------- CONFIGURAÇÃO DAS ABAS ----------------
@@ -706,6 +748,7 @@ if "Aprovacao" in tab_dict:
                                     st.rerun()
             else:
                 st.info("ℹ️ Nenhum registro pendente de aprovação no período selecionado.")
+
 
 
 
