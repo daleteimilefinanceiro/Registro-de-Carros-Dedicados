@@ -49,7 +49,8 @@ usuarios = {
     "SRM2504004": {"senha": "EDISY3PWq0iQiq1Z", "razao": "JUCIMARA QUITERIA RIBEIRO LOPES - TRANSPORTES"},
     "SRM2400717": {"senha": "rXMzaY7AwmGhkukB", "razao": "FLAVIO PEREIRA"},
     "SRM2301691": {"senha": "QfsL4ozXdOrXyF9N", "razao": "DONALDO TRANSPORTES E LOGISTICA LTDA"},
-    "SRM2600372": {"senha": "5nfklhZNTC2E4R3y", "razao": "VIEIRA LOPES LOGISTICA LTDA"}
+    "SRM2600372": {"senha": "5nfklhZNTC2E4R3y", "razao": "VIEIRA LOPES LOGISTICA LTDA"},
+    "michael.liu": {"senha": "ML2026!", "razao": "TODOS"}
 }
 
 # ---------------- FUNÇÕES AUXILIARES ----------------
@@ -282,14 +283,18 @@ usuarios_aprovacao_somente = {
     "leticia.lima", "river.zhou", "isabel.liu", 
     "lijun.zeng", "rafael.reis", "paula.soares",
 }
+usuarios_relatorio_somente = {
+    "michael.liu"
+}
 
 if usuario_logado in usuarios_aprovacao_somente:
     abas = ["Aprovacao", "Relatorio"]
+elif usuario_logado in usuarios_relatorio_somente:
+    abas = ["Relatorios", "Fluxo de Aprovacao"]
 elif razao_permitida == "TODOS":
     abas = ["Registro", "Relatorio", "Fluxo de Aprovacao", "Aprovacao"]
 else:
     abas = ["Registro", "Relatorio", "Fluxo de Aprovacao"]
-
 abas_objs = st.tabs(abas)
 tab_dict = {nome: abas_objs[i] for i, nome in enumerate(abas)}
 
@@ -748,6 +753,7 @@ if "Aprovacao" in tab_dict:
                                     st.rerun()
             else:
                 st.info("ℹ️ Nenhum registro pendente de aprovação no período selecionado.")
+
 
 
 
