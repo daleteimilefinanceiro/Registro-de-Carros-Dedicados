@@ -290,7 +290,7 @@ usuarios_relatorio_somente = {
 if usuario_logado in usuarios_aprovacao_somente:
     abas = ["Aprovacao", "Relatorio"]
 elif usuario_logado in usuarios_relatorio_somente:
-    abas = ["Relatorios", "Fluxo de Aprovacao"]
+    abas = ["Relatorio", "Fluxo de Aprovacao"]
 elif razao_permitida == "TODOS":
     abas = ["Registro", "Relatorio", "Fluxo de Aprovacao", "Aprovacao"]
 else:
@@ -753,6 +753,7 @@ if "Aprovacao" in tab_dict:
                                     st.rerun()
             else:
                 st.info("ℹ️ Nenhum registro pendente de aprovação no período selecionado.")
+
 
 
 
