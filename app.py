@@ -50,7 +50,8 @@ usuarios = {
     "SRM2400717": {"senha": "rXMzaY7AwmGhkukB", "razao": "FLAVIO PEREIRA"},
     "SRM2301691": {"senha": "QfsL4ozXdOrXyF9N", "razao": "DONALDO TRANSPORTES E LOGISTICA LTDA"},
     "SRM2600372": {"senha": "5nfklhZNTC2E4R3y", "razao": "VIEIRA LOPES LOGISTICA LTDA"},
-    "michael.liu": {"senha": "ML2026!", "razao": "TODOS"}
+    "michael.liu": {"senha": "ML2026!", "razao": "TODOS"},
+    "SRM2302082": {"senha": "oOEezeC5Te6pPAYo", "razao": "TEREZINHA APARECIDA PATEL SERVICOS DE LOGISTICA LTDA"}
 }
 
 # ---------------- FUNÇÕES AUXILIARES ----------------
@@ -274,7 +275,7 @@ cidades = [
     "URUPES",
     "SANTOS",
     "MIRASSOL",
-    "JAU"
+    "JAU",
 
 ]
 
@@ -753,6 +754,7 @@ if "Aprovacao" in tab_dict:
                                     st.rerun()
             else:
                 st.info("ℹ️ Nenhum registro pendente de aprovação no período selecionado.")
+
 
 
 
