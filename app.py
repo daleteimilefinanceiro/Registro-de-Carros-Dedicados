@@ -276,7 +276,6 @@ cidades = [
     "SANTOS",
     "MIRASSOL",
     "JAU",
-    "ARARAQUARA"
 
 ]
 
@@ -755,6 +754,7 @@ if "Aprovacao" in tab_dict:
                                     st.rerun()
             else:
                 st.info("ℹ️ Nenhum registro pendente de aprovação no período selecionado.")
+
 
 
 
