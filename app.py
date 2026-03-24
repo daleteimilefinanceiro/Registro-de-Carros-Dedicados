@@ -278,6 +278,7 @@ cidades = [
     "JAU",
     "PIRACICABA",
     "AURIFLAMA",
+    "DUQUE DE CAXIAS",
 
 ]
 
