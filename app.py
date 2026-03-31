@@ -52,7 +52,8 @@ usuarios = {
     "SRM2600372": {"senha": "5nfklhZNTC2E4R3y", "razao": "VIEIRA LOPES LOGISTICA LTDA"},
     "michael.liu": {"senha": "ML2026!", "razao": "TODOS"},
     "SRM2302082": {"senha": "oOEezeC5Te6pPAYo", "razao": "TEREZINHA APARECIDA PATEL SERVICOS DE LOGISTICA LTDA"}
-}
+    "SRM2302082": {"senha": "oOEezeC5Te6pPAYo", "razao": "TEREZINHA APARECIDA PATEL SERVICOS DE LOGISTICA LTDA"}
+    "SRM2403127":{"senha":"DM5rWLSDSUSDFEWf","razao":"LMC LOGISTICA E DISTRIBUICAO E ENTREGAS RAPIDAS LTDA"}
 
 # ---------------- FUNÇÕES AUXILIARES ----------------
 def verificar_duplicata(razao, data, operacao, cidade):
@@ -279,6 +280,8 @@ cidades = [
     "PIRACICABA",
     "AURIFLAMA",
     "DUQUE DE CAXIAS",
+    "GOIÂNIA",
+    "APARECIDA DE GOIÂNIA",
 
 ]
 
