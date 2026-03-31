@@ -52,7 +52,7 @@ usuarios = {
     "SRM2600372": {"senha": "5nfklhZNTC2E4R3y", "razao": "VIEIRA LOPES LOGISTICA LTDA"},
     "michael.liu": {"senha": "ML2026!", "razao": "TODOS"},
     "SRM2302082": {"senha": "oOEezeC5Te6pPAYo", "razao": "TEREZINHA APARECIDA PATEL SERVICOS DE LOGISTICA LTDA"},
-    "SRM2403127":{"senha":"DM5rWLSDSUSDFEWf","razao":"LMC LOGISTICA E DISTRIBUICAO E ENTREGAS RAPIDAS LTDA"},
+    "SRM2403127":{"senha":"DM5rWLSDSUSDFEWf","razao":"LMC LOGISTICA E DISTRIBUICAO E ENTREGAS RAPIDAS LTDA"}
 
 # ---------------- FUNÇÕES AUXILIARES ----------------
 def verificar_duplicata(razao, data, operacao, cidade):
@@ -204,7 +204,9 @@ razoes_sociais = [
     "AVISTA LOGISTICA EXPRESS LTDA",
     "JUCIMARA QUITERIA RIBEIRO LOPES - TRANSPORTES",
     "FLAVIO PEREIRA",
-    "VIEIRA LOPES LOGISTICA LTDA"
+    "VIEIRA LOPES LOGISTICA LTDA",
+    "LMC LOGISTICA E DISTRIBUICAO E ENTREGAS RAPIDAS LTDA"
+    
 ]
 
 tipos_veiculos = ["FIORINO", "VAN", "VUC", "CARRO UTILITARIO", "AJUDANTE", "MOTO", "3/4"]
@@ -280,7 +282,7 @@ cidades = [
     "AURIFLAMA",
     "DUQUE DE CAXIAS",
     "GOIÂNIA",
-    "APARECIDA DE GOIÂNIA",
+    "APARECIDA DE GOIÂNIA"
 
 ]
 
