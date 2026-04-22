@@ -285,7 +285,8 @@ cidades = [
     "AURIFLAMA",
     "DUQUE DE CAXIAS",
     "GOIÂNIA",
-    "APARECIDA DE GOIÂNIA"
+    "APARECIDA DE GOIÂNIA",
+    "BIRIGUI"
 
 ]
 
