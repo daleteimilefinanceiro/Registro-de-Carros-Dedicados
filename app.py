@@ -286,7 +286,8 @@ cidades = [
     "DUQUE DE CAXIAS",
     "GOIÂNIA",
     "APARECIDA DE GOIÂNIA",
-    "BIRIGUI"
+    "BIRIGUI",
+    "PRAIA GRANDE"
 
 ]
 
