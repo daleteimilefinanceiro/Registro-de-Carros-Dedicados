@@ -1,4 +1,4 @@
-import streamlit as st
+    import streamlit as st
 import pandas as pd
 from datetime import datetime, timedelta
 from supabase import create_client
@@ -213,7 +213,7 @@ razoes_sociais = [
 ]
 
 tipos_veiculos = ["FIORINO", "VAN", "VUC", "CARRO UTILITARIO", "AJUDANTE", "MOTO", "3/4"]
-operacoes = ["TIKTOK", "BENNET JEANS", "SHEIN", "NUVEMSHOP", "SHOP FOCO","BITHOME","CUBBO","CANIAO","ESTOCA","EXPRESSIO","FM TRANSPORTES","FRENET","KWAI","LADO ROSA","MAGAZORD","MERCADO LIVRE","MEU RODAPÉ","SATELITAL","ZENATUR","TPL"]
+operacoes = ["TIKTOK", "BENNET JEANS", "SHEIN", "NUVEMSHOP", "SHOP FOCO","BITHOME","CUBBO","CANIAO","ESTOCA","EXPRESSIO","FM TRANSPORTES","FRENET","KWAI","LADO ROSA","MAGAZORD","MERCADO LIVRE","MEU RODAPÉ","SATELITAL","ZENATUR","TPL","PRIVALIA","OLIST"]
 
 # NOVO: Lista de cidades
 cidades = [
