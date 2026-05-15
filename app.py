@@ -53,7 +53,10 @@ usuarios = {
     "michael.liu": {"senha": "ML2026!", "razao": "TODOS"},
     "SRM2302082": {"senha": "oOEezeC5Te6pPAYo", "razao": "TEREZINHA APARECIDA PATEL SERVICOS DE LOGISTICA LTDA"},
     "SRM2403127":{"senha":"DM5rWLSDSUSDFEWf","razao":"LMC LOGISTICA E DISTRIBUICAO E ENTREGAS RAPIDAS LTDA"},
-    "SRM2600903":{"senha":"HgoEQfyGEB3Fsj9i","razao":"CARGO LUZ LOGISTICA E TRANSPORTES LTDA"}
+    "SRM2600903":{"senha":"HgoEQfyGEB3Fsj9i","razao":"CARGO LUZ LOGISTICA E TRANSPORTES LTDA"},
+    "SRM2600221"{"senha":"dPpgHisANVX7wgYD","razao":"CCSM LOGISTICA E TRANSPORTES LTDA"},
+    "SRM2602373"{"senha":"gXucMmRlXSKYiSVl","razao":"URSOLOG TRANSPORTES LTDA"},
+
 }
     
 # ---------------- FUNÇÕES AUXILIARES ----------------
