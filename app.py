@@ -32,6 +32,7 @@ usuarios = {
     "lijun.zeng": {"senha": "LZ2026!", "razao": "TODOS"},
     "rafael.reis": {"senha": "RR2025!", "razao": "TODOS"},
     "paula.soares": {"senha": "PS2025!", "razao": "TODOS"},
+    "mariane.araujo": {"senha": "MA2026!", "razao": "TODOS"},
     "SRM2404167": {"senha": "bcNL6gY37UAKBG62", "razao": "WF FINGER TRANSPORTE E LOGISTICA LTDA"},
     "SRM2301839": {"senha": "VDML4iEq2L0aD5rR", "razao": "RF TRANSPORTES LTDA"},
     "SRM2402169": {"senha": "cXH7SpRxW0erQjYh", "razao": "RIVILOG LTDA"},
@@ -298,7 +299,7 @@ cidades = [
 # ---------------- CONFIGURAÇÃO DAS ABAS ----------------
 usuarios_aprovacao_somente = {
     "leticia.lima", "river.zhou", "isabel.liu", 
-    "lijun.zeng", "rafael.reis", "paula.soares",
+    "lijun.zeng", "rafael.reis", "paula.soares", "mariane.araujo",
 }
 usuarios_relatorio_somente = {
     "michael.liu"
