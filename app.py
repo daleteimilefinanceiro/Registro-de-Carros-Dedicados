@@ -57,7 +57,8 @@ usuarios = {
     "SRM2600903":{"senha":"HgoEQfyGEB3Fsj9i","razao":"CARGO LUZ LOGISTICA E TRANSPORTES LTDA"},
     "SRM2600221": {"senha":"dPpgHisANVX7wgYD","razao":"CCSM LOGISTICA E TRANSPORTES LTDA"},
     "SRM2602373": {"senha":"gXucMmRlXSKYiSVl","razao":"URSOLOG TRANSPORTES LTDA"},
-    "SRM2600639": {"senha":"PCwoRdbjFDijtJcF","razao":"ARNALDO RODRIGO CARMELLIN"}
+    "SRM2600639": {"senha":"PCwoRdbjFDijtJcF","razao":"ARNALDO RODRIGO CARMELLIN"},
+    "SRM2600864": {"senha":"LaU7o4yfGlZ8zqKy","razao":"W COVALI SANTOS TRANSPORTADORA LTDA"}
     
 }
     
