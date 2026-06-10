@@ -295,7 +295,8 @@ cidades = [
     "APARECIDA DE GOIÂNIA",
     "BIRIGUI",
     "PRAIA GRANDE",
-    "ESPIRITO SANTO"
+    "ESPIRITO SANTO",
+    "ABC"
 
 ]
 
