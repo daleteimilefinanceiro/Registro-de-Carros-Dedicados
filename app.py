@@ -1,4 +1,4 @@
-import streamlit as st
+Gimport streamlit as st
 import pandas as pd
 from datetime import datetime, timedelta
 from supabase import create_client
@@ -297,6 +297,7 @@ cidades = [
     "PRAIA GRANDE",
     "ESPIRITO SANTO",
     "ABC"
+    "GUARULHOS"
 
 ]
 
