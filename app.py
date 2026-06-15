@@ -296,7 +296,7 @@ cidades = [
     "BIRIGUI",
     "PRAIA GRANDE",
     "ESPIRITO SANTO",
-    "ABC"
+    "ABC",
     "GUARULHOS"
 
 ]
