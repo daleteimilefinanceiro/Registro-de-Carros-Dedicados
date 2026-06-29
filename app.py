@@ -60,7 +60,7 @@ usuarios = {
     "SRM2600639": {"senha":"PCwoRdbjFDijtJcF","razao":"ARNALDO RODRIGO CARMELLIN"},
     "SRM2600864": {"senha":"LaU7o4yfGlZ8zqKy","razao":"W COVALI SANTOS TRANSPORTADORA LTDA"},
     "SRM2502385": {"senha":"A2qFFNm5KnuU6k8Q","razao":"CR LOGISTICA E TRANSPORTES LTDA"},
-    "SRM2500159": {"senha":"zRFGw4Q9jEOwmw9c","razao":"BLINK LOGISTICA INTELIGENTE LIMITADA}
+    "SRM2500159": {"senha":"zRFGw4Q9jEOwmw9c","razao":"BLINK LOGISTICA INTELIGENTE LIMITADA"}
 }
     
 # ---------------- FUNÇÕES AUXILIARES ----------------
