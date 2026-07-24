@@ -303,7 +303,8 @@ cidades = [
     "ESPIRITO SANTO",
     "ABC",
     "GUARULHOS",
-    "SERRA"
+    "SERRA",
+    "BAURU"
 
 ]
 
