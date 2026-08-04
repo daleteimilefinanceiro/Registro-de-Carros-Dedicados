@@ -63,7 +63,7 @@ usuarios = {
     "SRM2500159": {"senha":"zRFGw4Q9jEOwmw9c","razao":"BLINK LOGISTICA INTELIGENTE LIMITADA"},
     "SRM2402787": {"senha":"f2cBsK6ad05oxyOr","razao":"LOJAS MIUK LTDA"},
     "SRM2603526": {"senha":"Cep65xatd3Xiodnj","razao":"JPV LOG TRANSPORTES LTDA"},
-    "SRM2400461": {"senha":"LG6wWqjYUwX19hIg","razao":"38.201.147 JOVANE DE JESUS XAVIER"}
+    "SRM2400461": {"senha":"LG6wWqjYUwX19hIg","razao":"38.201.147 JOVANE DE JESUS XAVIER"},
     "SRM2603427": {"senha":"hCRtvXAowmAvIj3v","razao":"2L LOG TRANSPORTES LTDA"}
     
 }
