@@ -82,12 +82,35 @@ def verificar_duplicata(razao, data, operacao, cidade):
             .eq("OPERACAO", operacao) \
             .eq("CIDADE", cidade) \
             .neq("STATUS", "Rejeitado")
-        registros = query.execute().data or []
+        registros = executar_consulta_paginada(query)
         return len(registros) > 0, registros
     except Exception as e:
         logger.error(f"Erro ao verificar duplicatas: {e}")
         st.error(f"❌ Erro ao verificar duplicatas: {e}")
         return False, []
+
+def executar_consulta_paginada(query, tamanho_lote=1000):
+    """
+    Executa uma consulta Supabase em lotes para superar
+    o limite padrão de 1.000 registros por requisição.
+    """
+    todos_registros = []
+    inicio = 0
+
+    while True:
+        fim = inicio + tamanho_lote - 1
+        resposta = query.range(inicio, fim).execute()
+        lote = resposta.data or []
+
+        todos_registros.extend(lote)
+
+        if len(lote) < tamanho_lote:
+            break
+
+        inicio += tamanho_lote
+
+    return todos_registros
+
 
 def buscar_registros_mes(razao, primeiro_dia, ultimo_dia):
     """
@@ -99,7 +122,7 @@ def buscar_registros_mes(razao, primeiro_dia, ultimo_dia):
             .eq("RAZAO_SOCIAL", razao) \
             .gte("DATA_OFICIAL", primeiro_dia.strftime("%Y-%m-%d")) \
             .lte("DATA_OFICIAL", ultimo_dia.strftime("%Y-%m-%d"))
-        registros = query.execute().data or []
+        registros = executar_consulta_paginada(query)
         
         # Organizar por data e operação para lookup rápido
         registros_por_dia = {}
@@ -570,8 +593,7 @@ if "Relatorio" in tab_dict:
                     .eq("STATUS", "Aprovado")
                 
                 try:
-                    res = query.execute()
-                    registros = res.data
+                    registros = executar_consulta_paginada(query)
                 except Exception as e:
                     logger.error(f"Erro ao buscar relatório: {e}")
                     st.error(f"❌ Erro ao buscar dados: {e}")
@@ -635,7 +657,8 @@ if "Fluxo de Aprovacao" in tab_dict:
         
         query = supabase.table("registro_veiculos_calendario").select("*") \
             .gte("DATA_OFICIAL", data_inicio.isoformat()) \
-            .lte("DATA_OFICIAL", data_fim.isoformat())
+            .lte("DATA_OFICIAL", data_fim.isoformat()) \
+            .order("DATA_OFICIAL", desc=False)
         
         if razao_permitida != "TODOS":
             query = query.eq("RAZAO_SOCIAL", razao_permitida)
@@ -644,7 +667,7 @@ if "Fluxo de Aprovacao" in tab_dict:
             query = query.eq("STATUS", status_filtro)
         
         try:
-            registros = query.execute().data or []
+            registros = executar_consulta_paginada(query)
         except Exception as e:
             logger.error(f"Erro ao buscar fluxo: {e}")
             st.error(f"❌ Erro: {e}")
@@ -690,7 +713,7 @@ if "Aprovacao" in tab_dict:
                 .order("DATA_OFICIAL", desc=False)
             
             try:
-                registros = query.execute().data or []
+                registros = executar_consulta_paginada(query)
             except Exception as e:
                 logger.error(f"Erro ao buscar aprovações: {e}")
                 st.error(f"❌ Erro: {e}")
@@ -784,7 +807,6 @@ if "Aprovacao" in tab_dict:
                                     st.rerun()
             else:
                 st.info("ℹ️ Nenhum registro pendente de aprovação no período selecionado.")
-
 
 
 
