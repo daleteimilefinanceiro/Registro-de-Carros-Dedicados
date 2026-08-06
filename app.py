@@ -89,11 +89,7 @@ def verificar_duplicata(razao, data, operacao, cidade):
         st.error(f"❌ Erro ao verificar duplicatas: {e}")
         return False, []
 
-def executar_consulta_paginada(query, tamanho_lote=1000):
-    """
-    Executa uma consulta Supabase em lotes para superar
-    o limite padrão de 1.000 registros por requisição.
-    """
+def executar_consulta_paginada(query, tamanho_lote=500):
     todos_registros = []
     inicio = 0
 
