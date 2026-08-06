@@ -64,7 +64,8 @@ usuarios = {
     "SRM2402787": {"senha":"f2cBsK6ad05oxyOr","razao":"LOJAS MIUK LTDA"},
     "SRM2603526": {"senha":"Cep65xatd3Xiodnj","razao":"JPV LOG TRANSPORTES LTDA"},
     "SRM2400461": {"senha":"LG6wWqjYUwX19hIg","razao":"38.201.147 JOVANE DE JESUS XAVIER"},
-    "SRM2603427": {"senha":"hCRtvXAowmAvIj3v","razao":"2L LOG TRANSPORTES LTDA"}
+    "SRM2603427": {"senha":"hCRtvXAowmAvIj3v","razao":"2L LOG TRANSPORTES LTDA"},
+    "marllon.richard": {"senha": "MR2026!", "razao": "TODOS"}
     
 }
     
@@ -335,8 +336,8 @@ cidades = [
 
 # ---------------- CONFIGURAÇÃO DAS ABAS ----------------
 usuarios_aprovacao_somente = {
-    "leticia.lima", "river.zhou", "isabel.liu", 
-    "lijun.zeng", "rafael.reis", "paula.soares", "mariane.araujo",
+    "leticia.lima", "isabel.liu", 
+    "lijun.zeng", "paula.soares", "mariane.araujo", "marllon.richard",
 }
 usuarios_relatorio_somente = {
     "michael.liu"
