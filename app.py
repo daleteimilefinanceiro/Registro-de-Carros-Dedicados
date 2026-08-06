@@ -95,15 +95,20 @@ def executar_consulta_paginada(query, tamanho_lote=500):
 
     while True:
         fim = inicio + tamanho_lote - 1
+
         resposta = query.range(inicio, fim).execute()
         lote = resposta.data or []
 
-        todos_registros.extend(lote)
-
-        if len(lote) < tamanho_lote:
+        # Só encerra quando não encontrar mais nenhum registro
+        if not lote:
             break
 
-        inicio += tamanho_lote
+        todos_registros.extend(lote)
+
+        # Avança pela quantidade realmente recebida
+        inicio += len(lote)
+
+    return todos_registros
 
     return todos_registros
 
