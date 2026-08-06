@@ -82,12 +82,35 @@ def verificar_duplicata(razao, data, operacao, cidade):
             .eq("OPERACAO", operacao) \
             .eq("CIDADE", cidade) \
             .neq("STATUS", "Rejeitado")
-        registros = query.execute().data or []
+        registros = executar_consulta_paginada(query)
         return len(registros) > 0, registros
     except Exception as e:
         logger.error(f"Erro ao verificar duplicatas: {e}")
         st.error(f"❌ Erro ao verificar duplicatas: {e}")
         return False, []
+
+def executar_consulta_paginada(query, tamanho_lote=1000):
+    """
+    Executa uma consulta Supabase em lotes para superar
+    o limite padrão de 1.000 registros por requisição.
+    """
+    todos_registros = []
+    inicio = 0
+
+    while True:
+        fim = inicio + tamanho_lote - 1
+        resposta = query.range(inicio, fim).execute()
+        lote = resposta.data or []
+
+        todos_registros.extend(lote)
+
+        if len(lote) < tamanho_lote:
+            break
+
+        inicio += tamanho_lote
+
+    return todos_registros
+
 
 def buscar_registros_mes(razao, primeiro_dia, ultimo_dia):
     """
@@ -140,28 +163,6 @@ def inserir_registros_batch(registros_lista):
             return False, "❌ Registro duplicado detectado!"
         else:
             return False, f"❌ Erro ao registrar: {erro_str}"
-def executar_consulta_paginada(query, tamanho_lote=1000):
-    """
-    Executa uma consulta Supabase em lotes para superar
-    o limite padrão de 1.000 registros por requisição.
-    """
-    todos_registros = []
-    inicio = 0
-
-    while True:
-        fim = inicio + tamanho_lote - 1
-
-        resposta = query.range(inicio, fim).execute()
-        lote = resposta.data or []
-
-        todos_registros.extend(lote)
-
-        if len(lote) < tamanho_lote:
-            break
-
-        inicio += tamanho_lote
-
-    return todos_registros
 
 # ---------------- AUTENTICAÇÃO ----------------
 if "usuario" not in st.session_state:
@@ -655,22 +656,22 @@ if "Fluxo de Aprovacao" in tab_dict:
         status_filtro = st.selectbox("🔍 Status", ["Todos", "Pendente", "Aprovado", "Rejeitado"])
         
         query = supabase.table("registro_veiculos_calendario").select("*") \
-    .gte("DATA_OFICIAL", data_inicio.isoformat()) \
-    .lte("DATA_OFICIAL", data_fim.isoformat()) \
-    .order("DATA_OFICIAL", desc=False)
-
-if razao_permitida != "TODOS":
-    query = query.eq("RAZAO_SOCIAL", razao_permitida)
-
-if status_filtro != "Todos":
-    query = query.eq("STATUS", status_filtro)
-
-try:
-    registros = executar_consulta_paginada(query)
-except Exception as e:
-    logger.error(f"Erro ao buscar fluxo: {e}")
-    st.error(f"❌ Erro: {e}")
-    registros = []
+            .gte("DATA_OFICIAL", data_inicio.isoformat()) \
+            .lte("DATA_OFICIAL", data_fim.isoformat()) \
+            .order("DATA_OFICIAL", desc=False)
+        
+        if razao_permitida != "TODOS":
+            query = query.eq("RAZAO_SOCIAL", razao_permitida)
+        
+        if status_filtro != "Todos":
+            query = query.eq("STATUS", status_filtro)
+        
+        try:
+            registros = executar_consulta_paginada(query)
+        except Exception as e:
+            logger.error(f"Erro ao buscar fluxo: {e}")
+            st.error(f"❌ Erro: {e}")
+            registros = []
         
         if registros:
             df = pd.DataFrame(registros)
