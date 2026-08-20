@@ -330,7 +330,8 @@ cidades = [
     "ABC",
     "GUARULHOS",
     "SERRA",
-    "BAURU"
+    "BAURU",
+    "BARRETOS"
 
 ]
 
