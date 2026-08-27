@@ -331,7 +331,10 @@ cidades = [
     "GUARULHOS",
     "SERRA",
     "BAURU",
-    "BARRETOS"
+    "BARRETOS",
+    "TABATINGA",
+    "IBITINGA"
+    
 
 ]
 
