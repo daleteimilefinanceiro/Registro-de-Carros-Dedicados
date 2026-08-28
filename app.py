@@ -65,7 +65,9 @@ usuarios = {
     "SRM2603526": {"senha":"Cep65xatd3Xiodnj","razao":"JPV LOG TRANSPORTES LTDA"},
     "SRM2400461": {"senha":"LG6wWqjYUwX19hIg","razao":"38.201.147 JOVANE DE JESUS XAVIER"},
     "SRM2603427": {"senha":"hCRtvXAowmAvIj3v","razao":"2L LOG TRANSPORTES LTDA"},
-    "marllon.richard": {"senha": "MR2026!", "razao": "TODOS"}
+    "marllon.richard": {"senha": "MR2026!", "razao": "TODOS"},
+    "SRM2604240": {"senha":"lYYdUCPxqzIZ1aPR","razao":"ANDRE LUIZ DE SOUZA TRANSPORTES EM GERAL"},
+    "SRM2604466 ": {"senha":"1ethrm0CSN7iYg1D","razao":"GABRIELLA JOVINA MONTEIRO"}
     
 }
     
@@ -333,7 +335,8 @@ cidades = [
     "BAURU",
     "BARRETOS",
     "TABATINGA",
-    "IBITINGA"
+    "IBITINGA",
+    "FRANCA"
     
 
 ]
