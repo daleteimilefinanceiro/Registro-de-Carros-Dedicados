@@ -336,7 +336,8 @@ cidades = [
     "BARRETOS",
     "TABATINGA",
     "IBITINGA",
-    "FRANCA"
+    "FRANCA",
+    "ARAÇARIGUAMA"
     
 
 ]
