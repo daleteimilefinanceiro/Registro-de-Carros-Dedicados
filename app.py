@@ -67,7 +67,8 @@ usuarios = {
     "SRM2603427": {"senha":"hCRtvXAowmAvIj3v","razao":"2L LOG TRANSPORTES LTDA"},
     "marllon.richard": {"senha": "MR2026!", "razao": "TODOS"},
     "SRM2604240": {"senha":"lYYdUCPxqzIZ1aPR","razao":"ANDRE LUIZ DE SOUZA TRANSPORTES EM GERAL"},
-    "SRM2604466": {"senha":"1ethrm0CSN7iYg1D","razao":"GABRIELLA JOVINA MONTEIRO"}
+    "SRM2604466": {"senha":"1ethrm0CSN7iYg1D","razao":"GABRIELLA JOVINA MONTEIRO"},
+    "SRM2600088": {"senha":"n7n1n0iX9dRqj2VR","razao":"JULIANA JUNQUEIRA PEREIRA LTDA}
     
 }
     
